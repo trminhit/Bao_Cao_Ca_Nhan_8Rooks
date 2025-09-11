@@ -1,5 +1,6 @@
 import tkinter as tk
 import BFS_8Rooks
+import DFS_8Rooks
 import time
 from PIL import Image, ImageTk
 
@@ -7,7 +8,7 @@ cell_s = 60
 
 selected = None
 Squares = {}
-solution = [0, 1, 2, 3, 4, 5, 6, 7]
+solution = [4,5,6,7,0,1,2,3]
 
 def DrawBoard(canvas, x_start = 0, y_start = 0, rooks = None, rook_img=None):
     """ Vẽ bàn cờ """
@@ -58,8 +59,12 @@ def WindowUI():
     canvas.rook_img = rook_img
     
     BFS_btn = tk.Button(root, text="Run BFS", font=("Arial", 14, "bold"),
-                        command=lambda: RookPlacing(canvas, rook_img))
+                        command=lambda: RookPlacing_BFS(canvas, rook_img, solution))
     BFS_btn.place(x=10, y=90)
+    
+    DFS_btn = tk.Button(root, text="Run DFS", font=("Arial", 14, "bold"),
+                        command=lambda: RookPlacing_DFS(canvas, rook_img, solution))
+    DFS_btn.place(x=10, y=150)
     
     return root, canvas, rook_img
 
@@ -85,26 +90,41 @@ def Draw_start_goal(canvas, rook_img):
                        y_offset + 8 * cell_s + 50,
                        text="Goal", font=("Arial", 18, "bold"), fill="black")
 
-def RookPlacing(canvas, rook_img):
+def RookPlacing_BFS(canvas, rook_img, solution):
     """ Đặt quân xe từng bước lên bàn cờ bằng BFS """
-    states = list(BFS_8Rooks.Find_Rooks())  
-    index = 0
+    states = list(BFS_8Rooks.Find_Rooks_BFS(solution))  
+    idx = 0
 
-    def draw_step():
-        nonlocal index
-        if index >= len(states):
+    def DrawStep():
+        nonlocal idx
+        if idx >= len(states):
             return
         
         canvas.delete("rook")  
-        state = states[index]
+        state = states[idx]
+        for r, c in state:
+            x_center = 150 + c * cell_s + cell_s // 2
+            y_center = 80 + r * cell_s + cell_s // 2
+            canvas.create_image(x_center, y_center, image=rook_img, tags="rook")  
+        idx += 1
+        canvas.after(100, DrawStep)  
+    DrawStep()   
+    
+def RookPlacing_DFS(canvas, rook_img, solution):
+    """ Đặt quân xe từng bước lên bàn cờ bằng DFS """
+    states = list(DFS_8Rooks.Find_Rooks_DFS(solution))
+    idx = 0
+    def DrawStep():
+        nonlocal idx
+        if idx >= len(states):
+            return
+        
+        canvas.delete("rook")  
+        state = states[idx]
         for r, c in state:
             x_center = 150 + c * cell_s + cell_s // 2
             y_center = 80 + r * cell_s + cell_s // 2
             canvas.create_image(x_center, y_center, image=rook_img, tags="rook")
-        
-        index += 1
-        canvas.after(200, draw_step)  
-
-    draw_step()   
-    
-    
+        idx += 1
+        canvas.after(100, DrawStep)  
+    DrawStep()
