@@ -1,4 +1,4 @@
-def Find_Rooks():
+def Find_Rooks_BFS(solution):
     start = []
     Queue = [start]
     
@@ -8,7 +8,10 @@ def Find_Rooks():
         yield [(i, col_select[i]) for i in range(len(col_select))]
         
         if len(col_select) == 8:
-            continue
+            if col_select == solution:
+                break
+            else:
+                continue
         
         for col in range(8):
             if col not in col_select:
