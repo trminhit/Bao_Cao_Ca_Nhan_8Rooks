@@ -4,8 +4,11 @@ def Find_Rooks():
     
     while Queue:
         col_select = Queue.pop(0)
+        # yield trạng thái hiện tại (có thể chưa đủ 8 quân)
+        yield [(i, col_select[i]) for i in range(len(col_select))]
+        
         if len(col_select) == 8:
-            return [(i, col_select[i]) for i in range(len(col_select))]
+            continue
         
         for col in range(8):
             if col not in col_select:

@@ -7,6 +7,7 @@ cell_s = 60
 
 selected = None
 Squares = {}
+solution = [0, 1, 2, 3, 4, 5, 6, 7]
 
 def DrawBoard(canvas, x_start = 0, y_start = 0, rooks = None, rook_img=None):
     """ Vẽ bàn cờ """
@@ -77,7 +78,7 @@ def Draw_start_goal(canvas, rook_img):
                        text="Begin", font=("Arial", 18, "bold"), fill = "black")
     
     # Bàn cờ đích (Goal)
-    rooks = BFS_8Rooks.Find_Rooks()
+    rooks = [(r, solution[r]) for r in range(8)]
     DrawBoard(canvas, x_start=x_offset + 8 * cell_s + 100, 
               y_start=y_offset, rooks=rooks, rook_img=rook_img)
     canvas.create_text(x_offset + 8 * cell_s + 40 + 8 * cell_s // 2 + 60,
@@ -85,19 +86,25 @@ def Draw_start_goal(canvas, rook_img):
                        text="Goal", font=("Arial", 18, "bold"), fill="black")
 
 def RookPlacing(canvas, rook_img):
-    """ Đặt quân xe từng bước lên bàn cờ trống """
-    solution = BFS_8Rooks.Find_Rooks()
-    
-    def PlaceStep(i):
-        if i < len(solution):
-            r, c = solution[i]
+    """ Đặt quân xe từng bước lên bàn cờ bằng BFS """
+    states = list(BFS_8Rooks.Find_Rooks())  
+    index = 0
+
+    def draw_step():
+        nonlocal index
+        if index >= len(states):
+            return
+        
+        canvas.delete("rook")  
+        state = states[index]
+        for r, c in state:
             x_center = 150 + c * cell_s + cell_s // 2
             y_center = 80 + r * cell_s + cell_s // 2
-            canvas.create_image(x_center, y_center, image=rook_img)
-         
-            #widget.after(delay_ms, callback), delay sau do callback sau khoang tg do
-            # Gọi lại tiếp bước kế sau 500ms
-            canvas.after(500, lambda: PlaceStep(i+1))       
-    PlaceStep(0)
+            canvas.create_image(x_center, y_center, image=rook_img, tags="rook")
+        
+        index += 1
+        canvas.after(200, draw_step)  
+
+    draw_step()   
     
     
