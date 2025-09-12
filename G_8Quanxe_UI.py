@@ -107,7 +107,7 @@ def RookPlacing_BFS(canvas, rook_img, solution):
             y_center = 80 + r * cell_s + cell_s // 2
             canvas.create_image(x_center, y_center, image=rook_img, tags="rook")  
         idx += 1
-        canvas.after(100, DrawStep)  
+        canvas.after(10, DrawStep)  
     DrawStep()   
     
 def RookPlacing_DFS(canvas, rook_img, solution):
@@ -126,5 +126,5 @@ def RookPlacing_DFS(canvas, rook_img, solution):
             y_center = 80 + r * cell_s + cell_s // 2
             canvas.create_image(x_center, y_center, image=rook_img, tags="rook")
         idx += 1
-        canvas.after(100, DrawStep)  
+        canvas.after(10, DrawStep)  
     DrawStep()
