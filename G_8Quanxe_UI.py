@@ -1,6 +1,9 @@
 import tkinter as tk
 import BFS_8Rooks
 import DFS_8Rooks
+import UCS_8Rooks
+import DLS_8Rooks
+import random
 import time
 from PIL import Image, ImageTk
 
@@ -22,18 +25,19 @@ def DrawBoard(canvas, x_start = 0, y_start = 0, rooks = None, rook_img=None):
     # Vẽ ký hiệu cột
     for c in range(8):
         x_center = x_start + c * cell_s + cell_s // 2
-        # Bên dưới: a → h
-        canvas.create_text(x_center, y_start + 8 * cell_s + 15, text=chr(ord('a') + c), font=("Arial", 10, "bold"))
-        # Bên trên: h → a
-        canvas.create_text(x_center, y_start - 15, text=chr(ord('h') - c), font=("Arial", 10, "bold"))
+        canvas.create_text(x_center, y_start + 8 * cell_s + 15,
+                           text=chr(ord('a') + c), font=("Helvetica", 10, "bold"))
+        canvas.create_text(x_center, y_start - 15,
+                           text=chr(ord('a') + c), font=("Helvetica", 10, "bold"))
 
     # Vẽ ký hiệu hàng 
-    for r in range(8): 
+    for r in range(8):
         y_center = y_start + r * cell_s + cell_s // 2
-        # Bên trái: 8 -> 1
-        canvas.create_text(x_start - 15, y_center, text=str(8 - r), font=("Arial", 10, "bold"))
-        # Bên phải: 1 → 8
-        canvas.create_text(x_start + 8 * cell_s + 15, y_center, text=str(r + 1), font=("Arial", 10, "bold"))
+        canvas.create_text(x_start - 15, y_center,
+                           text=str(8 - r), font=("Helvetica", 10, "bold"))
+        canvas.create_text(x_start + 8 * cell_s + 15, y_center,
+                           text=str(8 - r), font=("Helvetica", 10, "bold"))
+
         
     # Vẽ theo solution    
     if rooks and rook_img:
@@ -58,15 +62,33 @@ def WindowUI():
     rook_img = ImageTk.PhotoImage(Image.open("Rook_img.png").resize((cell_s, cell_s)))
     canvas.rook_img = rook_img
     
-    BFS_btn = tk.Button(root, text="Run BFS", font=("Arial", 14, "bold"),
+    Solution_btn = tk.Button(root, text="RANDOM\nSOLUTION", font=("Helvetica", 14, "bold"),
+                           command=lambda: RandomSolution(canvas, rook_img))
+    Solution_btn.place(x=10, y=20)
+    
+    BFS_btn = tk.Button(root, text="Run BFS", font=("Helvetica", 14, "bold"),
                         command=lambda: RookPlacing_BFS(canvas, rook_img, solution))
     BFS_btn.place(x=10, y=90)
     
-    DFS_btn = tk.Button(root, text="Run DFS", font=("Arial", 14, "bold"),
+    DFS_btn = tk.Button(root, text="Run DFS", font=("Helvetica", 14, "bold"),
                         command=lambda: RookPlacing_DFS(canvas, rook_img, solution))
     DFS_btn.place(x=10, y=150)
     
+    UCS_btn = tk.Button(root, text="Run UCS", font=("Helvetica", 14, "bold"),
+                        command=lambda: RookPlacing_UCS(canvas, rook_img, solution))
+    UCS_btn.place(x=10, y=210)
+    
+    DLS_btn = tk.Button(root, text="Run DLS", font=("Helvetica", 14, "bold"),
+                        command=lambda: RookPlacing_DLS(canvas, rook_img, solution, limit=8))
+    DLS_btn.place(x=10, y=270)
+    
     return root, canvas, rook_img
+
+def RandomSolution(canvas, rook_img):
+    global solution
+    solution = random.sample(range(8), 8)   #Hoán vị của 0..7
+    Draw_start_goal(canvas, rook_img)
+
 
 def Draw_start_goal(canvas, rook_img):
     """ Vẽ bàn cờ bắt đầu và kết thúc """
@@ -75,12 +97,12 @@ def Draw_start_goal(canvas, rook_img):
     x_offset = 150   
 
     canvas.create_text(8 * cell_s + x_offset + 50, 30,   
-                       text="8 Rooks", font=("Arial", 20, "bold"), fill="black")
+                       text="8 Rooks", font=("Helvetica", 20, "bold"), fill="black")
     
     # Bàn cờ trống (Start)
     DrawBoard(canvas, x_start=x_offset, y_start=y_offset)
     canvas.create_text(x_offset + 8 * cell_s // 2, y_offset + 8 * cell_s + 50,
-                       text="Begin", font=("Arial", 18, "bold"), fill = "black")
+                       text="Begin", font=("Helvetica", 18, "bold"), fill = "black")
     
     # Bàn cờ đích (Goal)
     rooks = [(r, solution[r]) for r in range(8)]
@@ -88,43 +110,119 @@ def Draw_start_goal(canvas, rook_img):
               y_start=y_offset, rooks=rooks, rook_img=rook_img)
     canvas.create_text(x_offset + 8 * cell_s + 40 + 8 * cell_s // 2 + 60,
                        y_offset + 8 * cell_s + 50,
-                       text="Goal", font=("Arial", 18, "bold"), fill="black")
+                       text="Goal", font=("Helvetica", 18, "bold"), fill="black")
 
+# def RookPlacing_BFS(canvas, rook_img, solution):
+#     """ Đặt quân xe từng bước lên bàn cờ bằng BFS """
+#     states = list(BFS_8Rooks.Find_Rooks_BFS(solution))  
+#     idx = 0
+
+#     def DrawStep():
+#         nonlocal idx
+#         if idx >= len(states):
+#             return   
+#         canvas.delete("rook")  
+#         state = states[idx]
+#         for r, c in state:
+#             x_center = 150 + c * cell_s + cell_s // 2
+#             y_center = 80 + r * cell_s + cell_s // 2
+#             canvas.create_image(x_center, y_center, image=rook_img, tags="rook")  
+#         idx += 1
+#         canvas.after(10, DrawStep)  
+#     DrawStep()   
 def RookPlacing_BFS(canvas, rook_img, solution):
-    """ Đặt quân xe từng bước lên bàn cờ bằng BFS """
-    states = list(BFS_8Rooks.Find_Rooks_BFS(solution))  
-    idx = 0
+    """Vẽ solution BFS từng quân xe một"""
+    canvas.delete("rook")
+    idx = 0  
+    def DrawNext():
+        nonlocal idx
+        if idx >= len(solution):
+            return  
+        
+        r, c = idx, solution[idx]
+        x_center = 150 + c * cell_s + cell_s // 2
+        y_center = 80 + r * cell_s + cell_s // 2
+        canvas.create_image(x_center, y_center, image=rook_img, tags="rook")
 
-    def DrawStep():
-        nonlocal idx
-        if idx >= len(states):
-            return
-        
-        canvas.delete("rook")  
-        state = states[idx]
-        for r, c in state:
-            x_center = 150 + c * cell_s + cell_s // 2
-            y_center = 80 + r * cell_s + cell_s // 2
-            canvas.create_image(x_center, y_center, image=rook_img, tags="rook")  
         idx += 1
-        canvas.after(10, DrawStep)  
-    DrawStep()   
+        canvas.after(700, DrawNext)  
+    DrawNext()
     
+# def RookPlacing_DFS(canvas, rook_img, solution):
+#     """ Đặt quân xe từng bước lên bàn cờ bằng DFS """
+#     states = list(DFS_8Rooks.Find_Rooks_DFS(solution))
+#     idx = 0
+#     def DrawStep():
+#         nonlocal idx
+#         if idx >= len(states):
+#             return
+#         canvas.delete("rook")  
+#         state = states[idx]
+#         for r, c in state:
+#             x_center = 150 + c * cell_s + cell_s // 2
+#             y_center = 80 + r * cell_s + cell_s // 2
+#             canvas.create_image(x_center, y_center, image=rook_img, tags="rook")
+#         idx += 1
+#         canvas.after(10, DrawStep)  
+#     DrawStep()
 def RookPlacing_DFS(canvas, rook_img, solution):
-    """ Đặt quân xe từng bước lên bàn cờ bằng DFS """
-    states = list(DFS_8Rooks.Find_Rooks_DFS(solution))
+    """Vẽ solution DFS từng quân xe một"""
+    canvas.delete("rook")
     idx = 0
-    def DrawStep():
+    def DrawNext():
         nonlocal idx
-        if idx >= len(states):
+        if idx >= len(solution):
+            return
+
+        r, c = idx, solution[idx]
+        x_center = 150 + c * cell_s + cell_s // 2
+        y_center = 80 + r * cell_s + cell_s // 2
+        canvas.create_image(x_center, y_center, image=rook_img, tags="rook")
+
+        idx += 1
+        canvas.after(700, DrawNext)
+    DrawNext()
+        
+def RookPlacing_UCS(canvas, rook_img, solution):
+    """Vẽ solutiong UCS từng quân xe một"""
+    canvas.delete("rook")
+    
+    cost, path = UCS_8Rooks.UniformCostSearch(solution)
+    idx = 0
+    def DrawNext():
+        nonlocal idx
+        if idx >= len(path):
             return
         
-        canvas.delete("rook")  
-        state = states[idx]
-        for r, c in state:
-            x_center = 150 + c * cell_s + cell_s // 2
-            y_center = 80 + r * cell_s + cell_s // 2
-            canvas.create_image(x_center, y_center, image=rook_img, tags="rook")
+        r, c = idx, path[idx]
+        x_center = 150 + c * cell_s + cell_s // 2
+        y_center = 80 + r * cell_s + cell_s // 2
+        canvas.create_image(x_center, y_center, image=rook_img, tags="rook")
+
         idx += 1
-        canvas.after(10, DrawStep)  
-    DrawStep()
+        canvas.after(700, DrawNext)
+    DrawNext()    
+    
+def RookPlacing_DLS(canvas, rook_img, solution, limit=8):
+    """Vẽ solution DLS từng quân xe một"""
+    canvas.delete("rook")
+    path = DLS_8Rooks.DepthLimitedSearch(solution, limit)
+
+    if not path:
+        print("Không tìm thấy solution trong độ sâu=", limit)
+        return
+
+    idx = 0
+    def DrawNext():
+        nonlocal idx
+        if idx >= len(path):
+            return
+        
+        r, c = idx, path[idx]
+        x_center = 150 + c * cell_s + cell_s // 2
+        y_center = 80 + r * cell_s + cell_s // 2
+        canvas.create_image(x_center, y_center, image=rook_img, tags="rook")
+
+        idx += 1
+        canvas.after(700, DrawNext)
+    DrawNext()
