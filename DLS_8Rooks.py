@@ -1,19 +1,21 @@
 def DepthLimitedSearch(solution, limit):
-    N = len(solution)
-    Stack = [([], 0)]  # (state, depth)
+    return Recursive_DLS([], solution, limit)
 
-    while Stack:
-        state, depth = Stack.pop()
+def Recursive_DLS(state, solution, limit):
+    
+    if len(state) == len(solution) and state == solution:
+        return state
+    
+    if limit == 0:
+        return None
+    
+    row = len(state)   
+    
+    for col in range(8):
+        if col not in state: 
+            child = state + [col]
+            result = Recursive_DLS(child, solution, limit - 1)
+            if result is not None:
+                return result
+    return None
 
-        if len(state) == N:
-            if state == solution:
-                return state
-            continue
-
-        if depth < limit:
-            for col in range(N-1, -1, -1):  
-                if col not in state:
-                    new_state = state + [col]
-                    Stack.append((new_state, depth+1))
-
-    return None  
