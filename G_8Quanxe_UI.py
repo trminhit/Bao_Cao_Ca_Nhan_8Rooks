@@ -3,6 +3,7 @@ import BFS_8Rooks
 import DFS_8Rooks
 import UCS_8Rooks
 import DLS_8Rooks
+import IDS_8Rooks
 import random
 import time
 from PIL import Image, ImageTk
@@ -81,6 +82,11 @@ def WindowUI():
     DLS_btn = tk.Button(root, text="Run DLS", font=("Helvetica", 14, "bold"),
                         command=lambda: RookPlacing_DLS(canvas, rook_img, solution, limit=8))
     DLS_btn.place(x=10, y=270)
+    
+    IDS_btn = tk.Button(root, text="Run IDS", font=("Helvetica", 14, "bold"),
+                    command=lambda: RookPlacing_IDS(canvas, rook_img, solution))
+    IDS_btn.place(x=10, y=330)
+
     
     return root, canvas, rook_img
 
@@ -226,3 +232,28 @@ def RookPlacing_DLS(canvas, rook_img, solution, limit=8):
         idx += 1
         canvas.after(700, DrawNext)
     DrawNext()
+    
+def RookPlacing_IDS(canvas, rook_img, solution):
+    """Vẽ solution IDS từng quân xe một"""
+    canvas.delete("rook")
+    path = IDS_8Rooks.IDS(solution)
+
+    if not path:
+        print("Không tìm thấy solution với IDS")
+        return
+
+    idx = 0
+    def DrawNext():
+        nonlocal idx
+        if idx >= len(path):
+            return
+        
+        r, c = idx, path[idx]
+        x_center = 150 + c * cell_s + cell_s // 2
+        y_center = 80 + r * cell_s + cell_s // 2
+        canvas.create_image(x_center, y_center, image=rook_img, tags="rook")
+
+        idx += 1
+        canvas.after(700, DrawNext)
+    DrawNext()
+
