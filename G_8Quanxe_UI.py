@@ -4,6 +4,8 @@ import DFS_8Rooks
 import UCS_8Rooks
 import DLS_8Rooks
 import IDS_8Rooks
+import Greedy_8Rooks
+import AS_8Rooks
 import random
 import time
 from PIL import Image, ImageTk
@@ -86,6 +88,16 @@ def WindowUI():
     IDS_btn = tk.Button(root, text="Run IDS", font=("Helvetica", 14, "bold"),
                     command=lambda: RookPlacing_IDS(canvas, rook_img, solution))
     IDS_btn.place(x=10, y=330)
+    
+    Greedy_btn = tk.Button(root, text="Run Greedy", font=("Helvetica", 14, "bold"),
+                       command=lambda: RookPlacing_Greedy(canvas, rook_img, solution))
+    Greedy_btn.place(x=10, y=390)
+    
+    AStar_btn = tk.Button(root, text="Run A*", font=("Helvetica", 14, "bold"),
+                      command=lambda: RookPlacing_AStar(canvas, rook_img, solution))
+    AStar_btn.place(x=10, y=450)
+
+
 
     
     return root, canvas, rook_img
@@ -257,3 +269,52 @@ def RookPlacing_IDS(canvas, rook_img, solution):
         canvas.after(700, DrawNext)
     DrawNext()
 
+def RookPlacing_Greedy(canvas, rook_img, solution):
+    """Vẽ solution Greedy từng quân xe một"""
+    canvas.delete("rook")
+    path = Greedy_8Rooks.GreedySearch(solution)  # chỉ nhận 1 giá trị path
+
+    if not path:
+        print("Không tìm thấy solution bằng Greedy")
+        return
+
+    idx = 0
+    def DrawNext():
+        nonlocal idx
+        if idx >= len(path):
+            return
+
+        r, c = idx, path[idx]
+        x_center = 150 + c * cell_s + cell_s // 2
+        y_center = 80 + r * cell_s + cell_s // 2
+        canvas.create_image(x_center, y_center, image=rook_img, tags="rook")
+
+        idx += 1
+        canvas.after(700, DrawNext)
+    DrawNext()
+    
+def RookPlacing_AStar(canvas, rook_img, solution):
+    """Vẽ solution A* từng quân xe một"""
+    
+    canvas.delete("rook")
+    
+    path = AS_8Rooks.AStarSearch(solution)
+
+    if not path:
+        print("Không tìm thấy solution bằng A*")
+        return
+
+    idx = 0
+    def DrawNext():
+        nonlocal idx
+        if idx >= len(path):
+            return
+
+        r, c = idx, path[idx]
+        x_center = 150 + c * cell_s + cell_s // 2
+        y_center = 80 + r * cell_s + cell_s // 2
+        canvas.create_image(x_center, y_center, image=rook_img, tags="rook")
+
+        idx += 1
+        canvas.after(700, DrawNext)
+    DrawNext()
