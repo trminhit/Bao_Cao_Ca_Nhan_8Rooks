@@ -6,6 +6,8 @@ import DLS_8Rooks
 import IDS_8Rooks
 import Greedy_8Rooks
 import AS_8Rooks
+import HillClimbing_8Rooks
+import SimulatedAnnealing_8Rooks
 import random
 import time
 from PIL import Image, ImageTk
@@ -96,6 +98,15 @@ def WindowUI():
     AStar_btn = tk.Button(root, text="Run A*", font=("Helvetica", 14, "bold"),
                       command=lambda: RookPlacing_AStar(canvas, rook_img, solution))
     AStar_btn.place(x=10, y=450)
+    
+    HC_btn = tk.Button(root, text="Run Hill Climbing", font=("Helvetica", 14, "bold"),
+                   command=lambda: RookPlacing_HillClimbing(canvas, rook_img, solution))
+    HC_btn.place(x=10, y=510)
+    
+    SA_btn = tk.Button(root, text="Run SA", font=("Helvetica", 14, "bold"),
+                   command=lambda: RookPlacing_SA(canvas, rook_img, solution))
+    SA_btn.place(x=10, y=570)
+
 
 
 
@@ -317,4 +328,59 @@ def RookPlacing_AStar(canvas, rook_img, solution):
 
         idx += 1
         canvas.after(700, DrawNext)
+    DrawNext()
+    
+def RookPlacing_HillClimbing(canvas, rook_img, solution):
+    """Vẽ solution Hill Climbing từng quân xe một"""
+    canvas.delete("rook")
+    path = HillClimbing_8Rooks.HillClimbing(solution)
+
+    if not path:
+        print("Không tìm thấy solution bằng Hill Climbing")
+        return
+
+    idx = 0
+    def DrawNext():
+        nonlocal idx
+        if idx >= len(path):
+            return
+
+        # lấy state hiện tại
+        state = path[idx]
+        canvas.delete("rook")  # xóa bước trước
+        for r, c in enumerate(state):
+            x_center = 150 + c * cell_s + cell_s // 2
+            y_center = 80 + r * cell_s + cell_s // 2
+            canvas.create_image(x_center, y_center, image=rook_img, tags="rook")
+
+        idx += 1
+        canvas.after(700, DrawNext)
+
+    DrawNext()
+    
+def RookPlacing_SA(canvas, rook_img, solution):
+    """Vẽ solution Simulated Annealing từng quân xe một"""
+    canvas.delete("rook")
+    path = SimulatedAnnealing_8Rooks.SimulatedAnnealing(solution, T0=10.0, alpha=0.95)
+
+    if not path:
+        print("Không tìm thấy solution bằng SA")
+        return
+
+    idx = 0
+    def DrawNext():
+        nonlocal idx
+        if idx >= len(path):
+            return
+
+        state = path[idx]
+        canvas.delete("rook")
+        for r, c in enumerate(state):
+            x_center = 150 + c * cell_s + cell_s // 2
+            y_center = 80 + r * cell_s + cell_s // 2
+            canvas.create_image(x_center, y_center, image=rook_img, tags="rook")
+
+        idx += 1
+        canvas.after(700, DrawNext)
+
     DrawNext()
