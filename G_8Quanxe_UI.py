@@ -8,6 +8,9 @@ import Greedy_8Rooks
 import AS_8Rooks
 import HillClimbing_8Rooks
 import SimulatedAnnealing_8Rooks
+import Beam_8Rooks
+import Genetic_8Rooks
+
 import random
 import time
 from PIL import Image, ImageTk
@@ -57,8 +60,8 @@ def WindowUI():
     root.title("8 Rooks")
     
     canvas = tk.Canvas(root, 
-                       width = 8 * cell_s * 2 + 350,
-                       height = 8 * cell_s + 175,
+                       width = 8 * cell_s * 2 + 400,
+                       height = 8 * cell_s + 225,
                        highlightthickness=0,
                        bg="white")
     canvas.pack()
@@ -106,6 +109,14 @@ def WindowUI():
     SA_btn = tk.Button(root, text="Run SA", font=("Helvetica", 14, "bold"),
                    command=lambda: RookPlacing_SA(canvas, rook_img, solution))
     SA_btn.place(x=10, y=570)
+    Beam_btn = tk.Button(root, text="Run Beam", font=("Helvetica", 14, "bold"),
+                    command=lambda: RookPlacing_Beam(canvas, rook_img, solution, beam_width=4))
+    Beam_btn.place(x=10, y=630)
+    
+    GA_btn = tk.Button(root, text="Run Genetic", font=("Helvetica", 14, "bold"),
+                   command=lambda: RookPlacing_GA(canvas, rook_img, solution, population_size=50, generations=500))
+    GA_btn.place(x=10, y=690)
+
 
 
 
@@ -380,6 +391,60 @@ def RookPlacing_SA(canvas, rook_img, solution):
             y_center = 80 + r * cell_s + cell_s // 2
             canvas.create_image(x_center, y_center, image=rook_img, tags="rook")
 
+        idx += 1
+        canvas.after(700, DrawNext)
+
+    DrawNext()
+    
+def RookPlacing_Beam(canvas, rook_img, solution, beam_width=4):
+    """Vẽ solution Beam Search từng quân xe một"""
+    canvas.delete("rook")
+    path = Beam_8Rooks.BeamSearch(solution, beam_width)
+
+    if not path:
+        print("Không tìm thấy solution bằng Beam Search")
+        return
+
+    idx = 0
+    def DrawNext():
+        nonlocal idx
+        if idx >= len(path):
+            return
+
+        # lấy state hiện tại
+        state = path[idx]
+        canvas.delete("rook")  # xóa bước trước
+        for r, c in enumerate(state):
+            x_center = 150 + c * cell_s + cell_s // 2
+            y_center = 80 + r * cell_s + cell_s // 2
+            canvas.create_image(x_center, y_center, image=rook_img, tags="rook")
+
+        idx += 1
+        canvas.after(700, DrawNext)
+
+    DrawNext()
+    
+def RookPlacing_GA(canvas, rook_img, solution, population_size=50, generations=500, mutation_rate=0.1):
+    canvas.delete("rook")
+    path = Genetic_8Rooks.GeneticAlgorithm(solution, population_size=population_size,
+                                           generations=generations, mutation_rate=mutation_rate)
+    if not path:
+        print("Không tìm thấy solution bằng GA")
+        return
+
+    # lấy trạng thái tốt nhất cuối cùng
+    final_state = path[-1]
+
+    idx = 0
+    def DrawNext():
+        nonlocal idx
+        if idx >= len(final_state):
+            return
+
+        r, c = idx, final_state[idx]
+        x_center = 150 + c * cell_s + cell_s // 2
+        y_center = 80 + r * cell_s + cell_s // 2
+        canvas.create_image(x_center, y_center, image=rook_img, tags="rook")
         idx += 1
         canvas.after(700, DrawNext)
 
