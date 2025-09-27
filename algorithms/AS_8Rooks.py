@@ -1,5 +1,6 @@
-import UCS_8Rooks
-import Greedy_8Rooks
+from .UCS_8Rooks import RookCost
+from .Greedy_8Rooks import H_Manhattan
+
 import heapq
 
 def AStarSearch(solution):
@@ -12,7 +13,7 @@ def AStarSearch(solution):
     """
     N = len(solution)
     start = ()
-    Queue = [(Greedy_8Rooks.H_Manhattan(start, solution), 0, start)]  # (f, g, state)
+    Queue = [(H_Manhattan(start, solution), 0, start)]  # (f, g, state)
     heapq.heapify(Queue)
 
     while Queue:
@@ -28,8 +29,8 @@ def AStarSearch(solution):
         for col in range(N):
             if col not in state:
                 new_state = state + (col,)
-                new_g = g + UCS_8Rooks.RookCost(state, col, solution)
-                new_h = Greedy_8Rooks.H_Manhattan(new_state, solution)
+                new_g = g + RookCost(state, col, solution)
+                new_h = H_Manhattan(new_state, solution)
                 heapq.heappush(Queue, (new_g + new_h, new_g, new_state))
 
     return None
