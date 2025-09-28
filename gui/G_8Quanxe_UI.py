@@ -107,6 +107,10 @@ def WindowUI():
                    command=lambda: RookPlacing_GA(canvas, rook_img, solution, population_size=50, generations=500))
     GA_btn.place(x=10, y=690)
 
+    ANDOR_btn = tk.Button(root, text="Run AND-OR", font=("Helvetica", 14, "bold"),
+                    command=lambda: RookPlacing_ANDOR(canvas, rook_img, solution))
+    ANDOR_btn.place(x=10, y=750)
+
 
 
 
@@ -435,6 +439,36 @@ def RookPlacing_GA(canvas, rook_img, solution, population_size=50, generations=5
         x_center = 150 + c * cell_s + cell_s // 2
         y_center = 80 + r * cell_s + cell_s // 2
         canvas.create_image(x_center, y_center, image=rook_img, tags="rook")
+        idx += 1
+        canvas.after(700, DrawNext)
+
+    DrawNext()
+    
+def RookPlacing_ANDOR(canvas, rook_img, solution):
+    """Vẽ solution bằng AND-OR Search từng quân xe một"""
+    canvas.delete("rook")
+
+    # Gọi hàm AND_OR_SEARCH lấy kết quả
+    result = AndOr_8Rooks.AND_OR_SEARCH(N=8, goal=solution)
+
+    if not result:
+        print("Không tìm thấy solution bằng AND-OR")
+        return
+
+    # result sẽ là list cột [4,5,6,7,0,1,2,3]
+    path = result
+
+    idx = 0
+    def DrawNext():
+        nonlocal idx
+        if idx >= len(path):
+            return
+
+        r, c = idx, path[idx]
+        x_center = 150 + c * cell_s + cell_s // 2
+        y_center = 80 + r * cell_s + cell_s // 2
+        canvas.create_image(x_center, y_center, image=rook_img, tags="rook")
+
         idx += 1
         canvas.after(700, DrawNext)
 
