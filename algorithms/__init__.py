@@ -9,3 +9,4 @@ from . import HillClimbing_8Rooks
 from . import SimulatedAnnealing_8Rooks
 from . import Beam_8Rooks
 from . import Genetic_8Rooks
+from . import AndOr_8Rooks
