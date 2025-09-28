@@ -1,13 +1,27 @@
-def AND_OR_SEARCH(N=8):
-    return OR_SEARCH((0, []), [], N)
+def AND_OR_SEARCH(N=8, goal=None):
+    # Xây dựng cây AND-OR
+    plans = OR_SEARCH((0, []), [], N)
+
+    # Trích toàn bộ goal paths
+    all_goals = extract_goals(plans)
+
+    # Loại bỏ trùng lặp bằng set
+    unique_goals = [list(g) for g in set(tuple(x) for x in all_goals)]
+
+    # Nếu có goal cần kiểm tra → lọc ra
+    if goal is not None:
+        return goal if goal in unique_goals else None
+
+    # Nếu không truyền goal → trả toàn bộ
+    return unique_goals
 
 
 def OR_SEARCH(state, path, N=8):
     row, occupied = state
     if row == N:
-        return [[]]   # 1 lời giải rỗng (goal)
+        return [[]]   # đạt goal
     if state in path:
-        return []
+        return []     # tránh vòng lặp
 
     solutions = []
     for s in range(N):
@@ -31,13 +45,14 @@ def AND_SEARCH(states, path, N=8):
     for s in states:
         subplans = OR_SEARCH(s, path, N)
         if not subplans:
-            return []
+            return []   # một nhánh thất bại thì toàn bộ thất bại
         new_all = []
         for ap in all_plans:
             for sp in subplans:
                 new_all.append(ap + [sp])
         all_plans = new_all
     return all_plans
+
 
 def extract_goals(plans, path=None):
     """Trích toàn bộ goal states (danh sách cột của các quân) từ kế hoạch"""
@@ -50,7 +65,9 @@ def extract_goals(plans, path=None):
             goals.append(path.copy())
         else:
             action, sub = plan[0]
-            s, d, col = action
+            _, _, col = action
             new_path = path + [col]
             goals.extend(extract_goals(sub, new_path))
     return goals
+
+
