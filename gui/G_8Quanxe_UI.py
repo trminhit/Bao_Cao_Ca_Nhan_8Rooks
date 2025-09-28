@@ -111,7 +111,7 @@ def WindowUI():
 
 
 
-    
+
     return root, canvas, rook_img
 
 def RandomSolution(canvas, rook_img):
