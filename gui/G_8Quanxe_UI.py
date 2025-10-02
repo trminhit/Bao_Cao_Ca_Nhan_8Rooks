@@ -33,11 +33,12 @@ ALGORITHM_FUNCTIONS = {
     "A*": lambda sol, mode="all": AS_8Rooks.AStarSearch(sol, mode),
     # Local Search
     "Hill Climbing": lambda sol, mode="all": HillClimbing_8Rooks.HillClimbing(sol, mode),
-    "Simulated Annealing": lambda sol, mode="all": 
-        SimulatedAnnealing_8Rooks.SimulatedAnnealing(sol, T0=10.0, alpha=0.95, mode=mode),
+    "Simulated Annealing": lambda sol, mode="all": SimulatedAnnealing_8Rooks.SimulatedAnnealing(sol, T0=10.0, alpha=0.95, mode=mode),
     "Beam Search": lambda sol, mode="all": Beam_8Rooks.BeamSearch(sol, beam_width=4, mode=mode),
-    "Genetic Algorithm": lambda sol, mode="all":
-        Genetic_8Rooks.GeneticAlgorithm(sol, population_size=50, generations=500, mutation_rate=0.1, mode=mode),
+    "Genetic Algorithm": lambda sol, mode="all": Genetic_8Rooks.GeneticAlgorithm(sol, population_size=50, generations=500, mutation_rate=0.1, mode=mode),
+    # Complex Environment
+    "Conformant": lambda sol, mode="all": Conformant.Find_Rooks_DFS_Belief(sol, mode),
+    "Contingency": lambda sol, mode="all": Contingency.Find_Rooks_DFS_Belief(solution, mode=mode)
 }
 
 ALGORITHM_GROUPS = {
@@ -67,24 +68,6 @@ ALGORITHM_GROUPS = {
     },
 }
 
-ALGORITHM_FUNCTIONS = {
-    # Uninformed Search
-    "BFS": lambda sol, mode="all": BFS_8Rooks.Find_Rooks_BFS(sol, mode),
-    "DFS": lambda sol, mode="all": DFS_8Rooks.Find_Rooks_DFS(sol, mode),
-    "DLS": lambda sol, mode="all": DLS_8Rooks.DepthLimitedSearch(sol, limit=8, mode=mode),
-    "IDS": lambda sol, mode="all": IDS_8Rooks.IDS(sol, mode),
-    "UCS": lambda sol, mode="all": UCS_8Rooks.UniformCostSearch(sol, mode)[1],
-    # Informed Search
-    "Greedy": lambda sol, mode="all": Greedy_8Rooks.GreedySearch(sol, mode),
-    "A*": lambda sol, mode="all": AS_8Rooks.AStarSearch(sol, mode),
-    # Local Search
-    "Hill Climbing": lambda sol, mode="all": HillClimbing_8Rooks.HillClimbing(sol, mode),
-    "Simulated Annealing": lambda sol, mode="all": 
-        SimulatedAnnealing_8Rooks.SimulatedAnnealing(sol, T0=10.0, alpha=0.95, mode=mode),
-    "Beam Search": lambda sol, mode="all": Beam_8Rooks.BeamSearch(sol, beam_width=4, mode=mode),
-    "Genetic Algorithm": lambda sol, mode="all":
-        Genetic_8Rooks.GeneticAlgorithm(sol, population_size=50, generations=500, mutation_rate=0.1, mode=mode),
-}
 
 def DrawBoard(canvas, x_start = 0, y_start = 0, rooks = None, rook_img=None):
     """ Vẽ bàn cờ """
@@ -622,7 +605,7 @@ class RookVisualizer:
         self.y_offset = 80
     
     def show_solution(self, algorithm_name):
-        """Vẽ giải pháp cuối cùng từng bước (mỗi rook một, delay 50ms)"""
+        """Vẽ giải pháp cuối cùng từng bước """
         self.canvas.delete("rook")
         self.canvas.delete("debug")
         
