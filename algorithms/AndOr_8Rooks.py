@@ -70,4 +70,4 @@ def extract_goals(plans, path=None):
             goals.extend(extract_goals(sub, new_path))
     return goals
 
-
+                                                                                                                             
