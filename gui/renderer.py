@@ -95,13 +95,13 @@ class Renderer:
                 ]
             },
             {
-                "name": "Complex Environment 2",
+                "name": "Constraint Satisfied Problem",
                 "gradient": "teal_lime",
                 "text_color": BLACK,
                 "algorithms": [
-                    {"name": "Genetic Algorithm", "desc": "Genetic Algorithm"},
-                    {"name": "Ant Colony Optimization", "desc": "Ant Colony Optimization"},
-                    {"name": "Particle Swarm Optimization", "desc": "Particle Swarm Optimization"}
+                    {"name": "Backtracking", "desc": "Backtracking"},
+                    {"name": "Forward Checking", "desc": "Forward Checking"},
+                    {"name": "Arc Consistency Algorithm 3", "desc": "Arc Consistency Algorithm 3"}
                 ]
             },
             {

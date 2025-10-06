@@ -86,7 +86,10 @@ class RooksGame:
             "Genetic Algorithm": lambda sol, mode="all": Genetic_8Rooks.GeneticAlgorithm(sol, population_size=50, generations=500, mutation_rate=0.1, mode=mode),
             "Nondeterministic": lambda sol, mode="all": AndOr_8Rooks.AND_OR_SEARCH(N=8, goal=sol, mode=mode),
             "Unobservable Search": lambda sol, mode="all": Unobservable_8Rooks.Find_Rooks_DFS_Belief(sol, mode),
-            "Partial Observable": lambda sol, mode="all": PartialObservable.Find_Rooks_DFS_Belief(sol, mode=mode)
+            "Partial Observable": lambda sol, mode="all": PartialObservable.Find_Rooks_DFS_Belief(sol, mode=mode),
+            "Backtracking": lambda sol, mode="all": Backtracking_8Rooks.Backtracking(sol, mode),
+            "Forward Checking": lambda sol, mode="all": ForwardChecking_8Rooks.ForwardChecking(sol, mode),
+            "Arc Consistency Algorithm 3": lambda sol, mode="all": AC3_8Rooks.AC3(sol, mode),
         }
 
     def handle_click(self, pos):
