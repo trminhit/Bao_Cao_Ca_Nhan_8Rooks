@@ -25,7 +25,7 @@ def Order_crossover(p1, p2):
     - Điền các gene còn lại theo thứ tự xuất hiện trong p2
     """
     n = len(p1)
-    a, b = sorted(random.sample(range(n), 2))   # chọn đoạn [a..b]
+    a, b = sorted(random.sample(range(n), 2))
     child = [None] * n
 
     # copy đoạn từ p1
@@ -34,10 +34,9 @@ def Order_crossover(p1, p2):
     # điền phần còn lại từ p2
     pos = (b+1) % n
     for gene in p2:
-        if gene not in child:   # chỉ chèn gene chưa có trong child
+        if gene not in child:
             child[pos] = gene
             pos = (pos + 1) % n
-
     return child
 
 def Mutate(ind, mutation_rate=0.1):
@@ -52,48 +51,42 @@ def Mutate(ind, mutation_rate=0.1):
         new_ind[i], new_ind[j] = new_ind[j], new_ind[i]
     return new_ind
 
-def GeneticAlgorithm(solution, population_size=50, generations=500, mutation_rate=0.1):
+def GeneticAlgorithm(solution, population_size=50, generations=500, mutation_rate=0.1, mode="goal"):
     """
-    Genetic Algorithm 
+    Genetic Algorithm
     - population_size: số cá thể trong quần thể
     - generations: số thế hệ tối đa
     - mutation_rate: xác suất đột biến
+    - mode="goal": trả về cá thể đúng solution ngay khi tìm thấy
+    - mode="all": trả về tất cả best cá thể qua các thế hệ
     """
     n = len(solution)
-    #Khởi tạo quần thể ban đầu
     population = Init_population(population_size, n)
-    path = []   # lưu lại best qua từng thế hệ
+    all_best = [] if mode == "all" else None
 
     for gen in range(generations):
-        # Đánh giá fitness của toàn bộ quần thể
         fitnesses = [H_match(ind, solution) for ind in population]
-
-        # Tìm cá thể tốt nhất 
         best_idx = max(range(len(population)), key=lambda i: fitnesses[i])
         best = population[best_idx]
         best_fit = fitnesses[best_idx]
-        path.append(best)
 
-        # Nếu tìm thấy nghiệm tối ưu 
-        if best_fit == n:
-            return path
+        if mode == "all":
+            all_best.append(best.copy())
+
+        if mode == "goal" and best_fit == n:
+            return best
 
         # Sinh thế hệ mới
-        new_population = [best]   # elitism: giữ lại best
-        while len(new_population) < population_size: #cho tới khi đủ 50 con
-            # chọn cha mẹ bằng tournament
+        new_population = [best]  # elitism: giữ lại best
+        while len(new_population) < population_size:
             p1 = Tournament_selection(population, fitnesses)
             p2 = Tournament_selection(population, fitnesses)
-
-            # lai ghép (tạo con)
             child = Order_crossover(p1, p2)
-
-            # đột biến (nếu xảy ra)
             child = Mutate(child, mutation_rate)
-
             new_population.append(child)
 
-        # cập nhật quần thể
         population = new_population
 
-    return path
+    if mode == "all":
+        return all_best
+    return None

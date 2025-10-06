@@ -1,9 +1,8 @@
 from .UCS_8Rooks import RookCost
 from .Greedy_8Rooks import H_Manhattan
-
 import heapq
 
-def AStarSearch(solution):
+def AStarSearch(solution=None, mode="goal"):
     """
     - Mỗi state là tuple các cột đã đặt.
     - Dùng f(n) = g(n) + h(n):
@@ -11,17 +10,24 @@ def AStarSearch(solution):
         + h(n): heuristic H_Manhattan (ước lượng khoảng cách tới goal)
     - Thêm node vào priority queue theo f(n) nhỏ nhất.
     """
-    N = len(solution)
+    N = 8
     start = ()
     Queue = [(H_Manhattan(start, solution), 0, start)]  # (f, g, state)
     heapq.heapify(Queue)
+    all_states = [] if mode == "all" else None
 
     while Queue:
         f, g, state = heapq.heappop(Queue)
 
+        # Lưu bước trung gian nếu mode "all"
+        if mode == "all":
+            all_states.append(list(state))
+
         if len(state) == N:
             if list(state) == solution:
-                return list(state)
+                if mode == "all":
+                    return all_states  # trả tất cả bước
+                return list(state)    # trả goal
             else:
                 continue
 
@@ -33,4 +39,7 @@ def AStarSearch(solution):
                 new_h = H_Manhattan(new_state, solution)
                 heapq.heappush(Queue, (new_g + new_h, new_g, new_state))
 
+    # Nếu không tìm được solution
+    if mode == "all":
+        return all_states
     return None

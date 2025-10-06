@@ -10,5 +10,8 @@ from . import SimulatedAnnealing_8Rooks
 from . import Beam_8Rooks
 from . import Genetic_8Rooks
 from . import AndOr_8Rooks
-from . import Conformant
-from . import Contingency
+from . import Unobservable_8Rooks
+from . import PartialObservable
+from . import Backtracking_8Rooks
+from . import ForwardChecking_8Rooks
+from . import AC3_8Rooks
