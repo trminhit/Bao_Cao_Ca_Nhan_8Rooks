@@ -70,14 +70,3 @@ def Find_Rooks_DFS_Belief(solution, mode="all"):
     
     return steps if mode == "all" else []
 
-if __name__ == "__main__":
-    solution = [4,5,6,7,0,1,2,3]
-
-    print("=== Mode all ===")
-    beliefs = Find_Rooks_DFS_Belief(solution, mode="all")
-    for b in beliefs:
-        print(b)
-
-    print("\n=== Mode goal ===")
-    goal = Find_Rooks_DFS_Belief(solution, mode="goal")
-    print(goal)
