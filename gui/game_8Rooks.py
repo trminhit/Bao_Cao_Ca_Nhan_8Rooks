@@ -5,33 +5,18 @@ import random
 from PIL import Image
 from algorithms import *
 from gui.renderer import Renderer
-
+from gui.renderer import (
+    PASTEL_BG, BOARD_LIGHT_CELL, BOARD_DARK_CELL, 
+    PASTEL_DARK_TEXT, PASTEL_LIGHT_BORDER, WHITE,
+    # Hằng số cần thiết
+    BOARD_OFFSET_X, BOARD_OFFSET_Y, SMALL_CELL_SIZE
+)
 # Constants
 WINDOW_WIDTH = 1400
 WINDOW_HEIGHT = 800
-CELL_SIZE = 60
-BOARD_SIZE = 8
-BOARD_WIDTH = BOARD_SIZE * CELL_SIZE
-BOARD_HEIGHT = BOARD_SIZE * CELL_SIZE
-BOARD_OFFSET_X = 400
-BOARD_OFFSET_Y = 80
-SMALL_CELL_SIZE = 37
 
-# Colors
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-GRAY = (128, 128, 128)
-LIGHT_GRAY = (200, 200, 200)
-DARK_GRAY = (64, 64, 64)
-GREEN = (0, 255, 0)
-RED = (255, 0, 0)
-BLUE = (0, 100, 255)
-YELLOW = (255, 255, 0)
-PURPLE = (128, 0, 128)
-ORANGE = (255, 140, 0)
-CYAN = (0, 200, 200)
-PINK = (255, 192, 203)
-LIGHT_BLUE = (173, 216, 230)
+
+
 
 class RooksGame:
     def __init__(self):
@@ -48,13 +33,6 @@ class RooksGame:
         
         self.history = []
         self.solution = random.sample(range(8), 8)
-        
-        self.BOARD_SIZE = BOARD_SIZE
-        self.BOARD_WIDTH = BOARD_WIDTH
-        self.BOARD_HEIGHT = BOARD_HEIGHT
-        self.CELL_SIZE = CELL_SIZE
-        self.BOARD_OFFSET_X = BOARD_OFFSET_X
-        self.BOARD_OFFSET_Y = BOARD_OFFSET_Y
         
         self.renderer = Renderer(self.screen, self, self.rook_img)
         
@@ -438,7 +416,7 @@ class RooksGame:
             self.stats["path_length"] = len(self.current_rooks)
     
     def draw_frame(self):
-        self.screen.fill(WHITE)
+        self.screen.fill(PASTEL_BG)
         self.renderer.draw_all()
         if self.current_rooks:
             self.visualizer.draw_animation_board(self.current_rooks, clear_background=False)
@@ -480,13 +458,19 @@ class RookVisualizer:
         for r in range(8):
             for c in range(8):
                 x1, y1 = self.x_offset + c * self.cell_size, self.y_offset + r * self.cell_size
-                color = (240, 217, 181) if (r + c) % 2 == 0 else (181, 136, 99)
+                # Sử dụng BOARD_LIGHT_CELL và BOARD_DARK_CELL đã import
+                color = BOARD_LIGHT_CELL if (r + c) % 2 == 0 else BOARD_DARK_CELL
                 pygame.draw.rect(self.screen, color, (x1, y1, self.cell_size, self.cell_size))
+
+        # Thêm viền bàn cờ để rõ ràng hơn (nếu bạn chưa thêm)
+        board_size = 8 * self.cell_size
+        board_rect = pygame.Rect(self.x_offset, self.y_offset, board_size, board_size)
+        pygame.draw.rect(self.screen, PASTEL_LIGHT_BORDER, board_rect, 1)
 
         if clear_background:
             for c in range(8):
                 x_center = self.x_offset + c * self.cell_size + self.cell_size // 2
-                text = self.game.small_font.render(chr(ord('a') + c), True, BLACK)
+                text = self.game.small_font.render(chr(ord('a') + c), True, PASTEL_DARK_TEXT)
                 text_rect = text.get_rect(center=(x_center, self.y_offset + 8 * self.cell_size + 10))
                 self.screen.blit(text, text_rect)
                 text_rect = text.get_rect(center=(x_center, self.y_offset - 10))
@@ -494,7 +478,7 @@ class RookVisualizer:
 
             for r in range(8):
                 y_center = self.y_offset + r * self.cell_size + self.cell_size // 2
-                text = self.game.small_font.render(str(8 - r), True, BLACK)
+                text = self.game.small_font.render(str(8 - r), True, PASTEL_DARK_TEXT)
                 text_rect = text.get_rect(center=(self.x_offset - 10, y_center))
                 self.screen.blit(text, text_rect)
                 text_rect = text.get_rect(center=(self.x_offset + 8 * self.cell_size + 10, y_center))
