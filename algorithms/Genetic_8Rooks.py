@@ -1,4 +1,5 @@
 import random
+from engine.performance import PerformanceTracker
 
 def H_match(state, solution):
     """Tính fitness: số quân đặt đúng vị trí"""
@@ -53,16 +54,17 @@ def Mutate(ind, mutation_rate=0.1):
 
 def GeneticAlgorithm(solution, population_size=50, generations=500, mutation_rate=0.1, mode="goal"):
     """
-    Genetic Algorithm
+    Genetic Algorithm cho 8 Rooks
     - population_size: số cá thể trong quần thể
     - generations: số thế hệ tối đa
     - mutation_rate: xác suất đột biến
-    - mode="goal": trả về cá thể đúng solution ngay khi tìm thấy
-    - mode="all": trả về tất cả best cá thể qua các thế hệ
     """
     n = len(solution)
     population = Init_population(population_size, n)
     all_best = [] if mode == "all" else None
+
+    tracker = PerformanceTracker("Genetic Algorithm")
+    tracker.start()
 
     for gen in range(generations):
         fitnesses = [H_match(ind, solution) for ind in population]
@@ -70,11 +72,15 @@ def GeneticAlgorithm(solution, population_size=50, generations=500, mutation_rat
         best = population[best_idx]
         best_fit = fitnesses[best_idx]
 
+        tracker.add_node()  # đếm best mỗi thế hệ
+
         if mode == "all":
             all_best.append(best.copy())
 
         if mode == "goal" and best_fit == n:
-            return best
+            tracker.goal_found()
+            tracker.stop()
+            return best, tracker.get_stats()
 
         # Sinh thế hệ mới
         new_population = [best]  # elitism: giữ lại best
@@ -87,6 +93,5 @@ def GeneticAlgorithm(solution, population_size=50, generations=500, mutation_rat
 
         population = new_population
 
-    if mode == "all":
-        return all_best
-    return None
+    tracker.stop()
+    return (all_best, tracker.get_stats()) if mode == "all" else (None, tracker.get_stats())

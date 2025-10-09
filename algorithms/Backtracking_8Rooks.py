@@ -1,4 +1,5 @@
 import random
+from engine.performance import PerformanceTracker
 
 def Backtracking(solution, mode="all"):
     """
@@ -9,37 +10,41 @@ def Backtracking(solution, mode="all"):
     """
     n = len(solution)
     all_states = [] if mode == "all" else None
-
+    perf = PerformanceTracker("Backtracking")
+    perf.start()
+    
     def Backtrack(state):
-        #state hiện tại là danh sách các cột đã đặt, index = hàng hiện tại
+        perf.add_node()  # tính mỗi state
         if mode == "all":
-            all_states.append(state.copy())  # Lưu trạng thái hiện tại
+            all_states.append(state.copy())
 
         #nếu đã đặt đủ n quân
         if len(state) == n:
-            if state == solution:  
-                return True 
+            if state == solution:
+                perf.goal_found()
+                return True
             else:
-                return False  
+                return False
 
         # tạo danh sách cột khả thi cho hàng hiện tại
         candidates = list(range(n))
-        random.shuffle(candidates)  # Random thứ tự cột
+        random.shuffle(candidates)
 
         # thử từng cột trong candidates
         for col in candidates:
-            if col not in state:  # Ràng buộc: không trùng cột
-                state.append(col)  # Gán giá trị biến
-                # Đệ quy sang biến tiếp theo (hàng tiếp theo)
+            if col not in state:
+                state.append(col)
                 result = Backtrack(state)
-                if result and mode == "goal": 
+                if result and mode == "goal":
                     return True
-                state.pop()  # Backtrack: xóa giá trị vừa thử
+                state.pop()
 
-        return False  # Nếu hết candidates mà không thành công
+        return False
 
-    Backtrack([]) 
+    Backtrack([])
+    perf.stop()
+
     if mode == "all":
-        return all_states  
+        return all_states, perf.get_stats()
     else:
-        return solution 
+        return solution, perf.get_stats()

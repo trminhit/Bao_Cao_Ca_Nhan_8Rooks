@@ -62,6 +62,9 @@ class RooksGame:
         self.selected_algorithm = 0
         self.is_running = False
         self.stats = {"nodes_visited": 0, "path_length": 0, "time": 0}
+        self._perf_snapshot = None #lưu perf dict trả về từ thuật toán
+
+        
         self.start_time = 0
         self.visualizer = RookVisualizer(self.screen, self.rook_img, self.solution, self)
         
@@ -85,7 +88,7 @@ class RooksGame:
             "Beam Search": lambda sol, mode="all": Beam_8Rooks.BeamSearch(sol, beam_width=4, mode=mode),
             "Genetic Algorithm": lambda sol, mode="all": Genetic_8Rooks.GeneticAlgorithm(sol, population_size=50, generations=500, mutation_rate=0.1, mode=mode),
             "Nondeterministic": lambda sol, mode="all": AndOr_8Rooks.AND_OR_SEARCH(N=8, goal=sol, mode=mode),
-            "Unobservable Search": lambda sol, mode="all": Unobservable_8Rooks.Find_Rooks_DFS_Belief(sol, mode),
+            "Unobservable Search": lambda sol, mode="all": Unobservable_8Rooks.Find_Rooks_DFS_Belief(sol, mode=mode),
             "Partial Observable": lambda sol, mode="all": PartialObservable.Find_Rooks_DFS_Belief(sol, mode=mode),
             "Backtracking": lambda sol, mode="all": Backtracking_8Rooks.Backtracking(sol, mode),
             "Forward Checking": lambda sol, mode="all": ForwardChecking_8Rooks.ForwardChecking(sol, mode),
@@ -126,23 +129,60 @@ class RooksGame:
         return alg["name"]
 
     def stop_animation(self):
-        """Dừng animation, giữ nguyên quân xe trên bàn cờ Start"""
-        self.animation_active = False
-        self.is_running = False
-        self.stats["time"] = (time.time() - self.start_time) * 1000
-        if self.stats["path_length"] > 0 or self.stats["nodes_visited"] > 0:
-            self.history.insert(0, {
-                "name": self.get_current_algorithm_name(),
-                "nodes": self.stats["nodes_visited"],
-                "length": self.stats["path_length"],
-                "time": f"{self.stats['time']:.0f}ms"
-            })
-            if len(self.history) > 5:
-                self.history = self.history[:5]
-        self.draw_frame()
+        """Dừng animation và cập nhật stats dựa trên PerformanceTracker nếu có."""
+        if self.animation_active:
+            perf = self._perf_snapshot or {}
+
+            alg_name = self.get_current_algorithm_name()
+
+            # --- Tính nodes đã hiển thị ---
+            nodes_shown = 0
+            if "Unobservable" in alg_name or "Partial Observable" in alg_name:
+                for idx, frame in enumerate(self.animation_data[:self.animation_idx]):
+                    if isinstance(frame, list) and frame and isinstance(frame[0], list):
+                        nodes_shown += len(frame)
+                    else:
+                        nodes_shown += 1
+                if self.animation_idx < len(self.animation_data):
+                    frame = self.animation_data[self.animation_idx]
+                    if isinstance(frame, list) and frame and isinstance(frame[0], list):
+                        nodes_shown += getattr(self, "sub_state_idx", 0)
+                    else:
+                        nodes_shown += 1
+            else:
+                nodes_shown = self.animation_idx
+
+            # --- Cập nhật stats ---
+            self.stats["nodes_visited"] = nodes_shown
+            total_time = perf.get("elapsed_time", 0.0) * 1000 * 50
+            if perf.get("nodes_visited", 0) > 0:
+                self.stats["time"] = total_time * nodes_shown / perf.get("nodes_visited", 1)
+            else:
+                self.stats["time"] = total_time
+            self.stats["path_length"] = len(self.current_rooks)
+
+            # Nếu animation chưa tìm ra giải thì path_length = 0
+            if not perf.get("solution_found", False):
+                self.stats["path_length"] = 0
+
+            # --- Ghi history ---
+            if self.stats["nodes_visited"] > 0:
+                self.history.insert(0, {
+                    "name": alg_name,
+                    "nodes": self.stats["nodes_visited"],
+                    "length": self.stats["path_length"],
+                    "time": f"{self.stats['time']:.0f}ms"
+                })
+
+            # --- Dừng animation ---
+            self.animation_active = False
+            self.is_running = False
+            self.draw_frame()
 
     def start_algorithm(self):
-        """Start the selected algorithm, xóa quân xe cũ"""
+        """Start selected algorithm, chế độ 'start' vẽ incremental lời giải cuối cùng."""
+        self.animation_type = 'start'
+
         self.animation_active = False
         self.is_running = False
         self.current_rooks = []
@@ -151,32 +191,59 @@ class RooksGame:
         self.is_running = True
         self.start_time = time.time()
         self.stats = {"nodes_visited": 0, "path_length": 0, "time": 0}
+        self._perf_snapshot = {}
+        self.animation_data = []
+        self.animation_idx = 0
+
         alg_name = self.get_current_algorithm_name()
-        if alg_name in self.algorithms:
-            algo_func = self.algorithms[alg_name]
-            try:
-                result = algo_func(self.solution, mode="goal")
-                final_state = result if isinstance(result, list) and result else None
-                if final_state:
-                    self.stats["path_length"] = len(final_state)
-                    self.stats["nodes_visited"] += len(final_state)
-                    self.animation_active = True
-                    self.animation_type = 'start'
-                    self.animation_data = final_state
-                    self.animation_idx = 0
-                    self.last_animation_time = pygame.time.get_ticks()
-                else:
-                    print(f"No solution found for {alg_name}")
-                    self.is_running = False
-            except Exception as e:
-                print(f"Error running {alg_name}: {e}")
-                self.is_running = False
-        else:
+        if alg_name not in self.algorithms:
             print(f"⚠ Algorithm {alg_name} not implemented!")
+            self.is_running = False
+            return
+
+        algo_func = self.algorithms[alg_name]
+        try:
+            result = algo_func(self.solution, mode="goal")
+
+            frames = []
+            final_perf = {}
+
+            if hasattr(result, '__next__'):  # generator
+                try:
+                    while True:
+                        belief, perf = next(result)
+                        final_perf = perf
+                        # tạo incremental frames từ belief hiện tại
+                        frames.append(list(belief))  # copy list
+                except StopIteration:
+                    pass
+            else:  # non-generator
+                final_belief, final_perf = result
+                final_belief = final_belief or []
+                for i in range(1, len(final_belief)+1):
+                    frames.append(final_belief[:i])
+
+            self.animation_data = frames or [[]]
+            self._perf_snapshot = final_perf.copy() if isinstance(final_perf, dict) else {}
+            self.stats["nodes_visited"] = self._perf_snapshot.get("nodes_visited", len(self.animation_data))
+            self.stats["time"] = self._perf_snapshot.get("elapsed_time", 0) * 1000 *50
+            self.stats["path_length"] = len(frames[-1]) if frames else 0
+
+            self.animation_active = True
+            self.animation_type = 'start'
+            self.animation_idx = 0
+            self.last_animation_time = pygame.time.get_ticks()
+
+        except Exception as e:
+            print(f"Error running {alg_name}: {e}")
+            import traceback
+            traceback.print_exc()
             self.is_running = False
 
     def visualize_algorithm(self):
-        """Visualize the selected algorithm, xóa quân xe cũ"""
+        """Visualize the selected algorithm, xóa quân xe cũ.
+        Chế độ 'visualize' thu thập tất cả các belief/state để animate toàn bộ quá trình."""
+        self.animation_type = 'visual'
         self.animation_active = False
         self.is_running = False
         self.current_rooks = []
@@ -185,28 +252,68 @@ class RooksGame:
         self.is_running = True
         self.start_time = time.time()
         self.stats = {"nodes_visited": 0, "path_length": 0, "time": 0}
+        self._perf_snapshot = None
+        self.animation_gen = None
+        self.animation_data = None
+        self.animation_idx = 0
         alg_name = self.get_current_algorithm_name()
+
         if alg_name in self.algorithms:
             algo_func = self.algorithms[alg_name]
             try:
-                states_gen = algo_func(self.solution, mode="all")
-                states = list(states_gen)
-                if states:
-                    self.stats["path_length"] = len(states[-1])
-                    self.stats["nodes_visited"] += len(states)
+                result = algo_func(self.solution, mode="all")
+                if hasattr(result, '__next__'):
+                    all_beliefs = []
+                    last_perf = {}
+                    # result is a generator yielding (belief, perf)
+                    try:
+                        while True:
+                            belief, perf = next(result)
+                            # belief = list of possible states
+                            # Chỉ lấy state đầu tiên để visualize
+                            if belief and len(belief) > 0:
+                                first_state = belief[0]
+                                all_beliefs.append(first_state if first_state else [])
+                            else:
+                                all_beliefs.append([])
+                            last_perf = perf
+                    except StopIteration:
+                        pass
+
+                    self.animation_data = all_beliefs
+                    self._perf_snapshot = last_perf.copy() if isinstance(last_perf, dict) else {}
+                    self.stats["nodes_visited"] = self._perf_snapshot.get("nodes_visited", len(all_beliefs))
+                    self.stats["time"] = self._perf_snapshot.get("elapsed_time", 0) * 1000 *50
+
                     self.animation_active = True
                     self.animation_type = 'visualize'
-                    self.animation_data = states
                     self.animation_idx = 0
                     self.last_animation_time = pygame.time.get_ticks()
+
                 else:
-                    print(f"No states found for {alg_name}")
-                    self.is_running = False
+                    # non-generator path: could be (states, perf) or states
+                    if isinstance(result, tuple):
+                        states, perf = result
+                    else:
+                        states, perf = result, {}
+
+                    self.animation_data = states if isinstance(states, list) else []
+                    self._perf_snapshot = perf.copy() if isinstance(perf, dict) else {}
+                    self.stats["nodes_visited"] = self._perf_snapshot.get("nodes_visited", len(self.animation_data))
+                    self.stats["time"] = self._perf_snapshot.get("elapsed_time", 0) * 1000 *50
+
+                    self.animation_active = True
+                    self.animation_type = 'visualize'
+                    self.animation_idx = 0
+                    self.last_animation_time = pygame.time.get_ticks()
+
             except Exception as e:
                 print(f"Error running {alg_name}: {e}")
+                import traceback
+                traceback.print_exc()
                 self.is_running = False
         else:
-            print(f"⚠ Algorithm {alg_name} not implemented!")
+            print(f"!!! Algorithm {alg_name} not implemented!")
             self.is_running = False
 
     def random_solution(self):
@@ -219,73 +326,117 @@ class RooksGame:
         self.draw_frame()
 
     def update_animation(self):
-        if not self.animation_active:
+        if not self.animation_active or not self.animation_data:
             return
 
         current_time = pygame.time.get_ticks()
-        delay = 100 if self.animation_type == 'start' else 30
+        delay = 200 if self.animation_type == 'start' else 80
         if current_time - self.last_animation_time < delay:
             return
-
         self.last_animation_time = current_time
 
-        def normalize_state(state_list):
-            """Chuyển state có thể là int hoặc list thành int"""
+        def normalize_state(state):
+            """Chuyển state (int, list hoặc None) thành list (row, col) chuẩn."""
+            if not state:
+                return []
             result = []
-            for idx, val in enumerate(state_list):
-                if isinstance(val, int):
-                    result.append((idx, val))
-                elif isinstance(val, list) and val:
-                    result.append((idx, val[0]))
+            for r, col in enumerate(state):
+                if r >= 8:
+                    break
+                if col is None:
+                    continue
+                if isinstance(col, int) and 0 <= col < 8:
+                    result.append((r, col))
+                elif isinstance(col, list) and col and 0 <= col[0] < 8:
+                    result.append((r, col[0]))
             return result
 
-        if self.animation_type == 'start':
-            final_state = self.animation_data
-            if self.animation_idx >= len(final_state):
-                self.stats["time"] = (time.time() - self.start_time) * 1000
-                self.history.insert(0, {
-                    "name": self.get_current_algorithm_name(),
-                    "nodes": self.stats["nodes_visited"],
-                    "length": self.stats["path_length"],
-                    "time": f"{self.stats['time']:.0f}ms"
-                })
-                if len(self.history) > 5:
-                    self.history = self.history[:5]
-                self.animation_active = False
-                self.is_running = False
-                return
+        alg_name = self.get_current_algorithm_name()
+        if not hasattr(self, 'sub_state_idx'):
+            self.sub_state_idx = 0
 
-            self.current_rooks = normalize_state(final_state[:self.animation_idx + 1])
-            self.visualizer.draw_animation_board(self.current_rooks)
+        # --- Kiểm tra kết thúc animation ---
+        if self.animation_idx >= len(self.animation_data):
+            self.animation_active = False
+            self.is_running = False
+            final_frame = self.animation_data[-1] if self.animation_data else []
+            self.current_rooks = normalize_state(
+                final_frame[-1] if ("Unobservable" in alg_name or "Partial Observable" in alg_name) and isinstance(final_frame, list) and final_frame and isinstance(final_frame[0], list) else final_frame
+            )
+            if self._perf_snapshot:
+                self.stats["nodes_visited"] = self._perf_snapshot.get("nodes_visited", len(self.animation_data))
+                self.stats["time"] = self._perf_snapshot.get("elapsed_time", 0) * 1000 *50
+            self.stats["path_length"] = len(self.current_rooks)
+
+            self.history.insert(0, {
+                "name": alg_name,
+                "nodes": self.stats["nodes_visited"],
+                "length": self.stats["path_length"],
+                "time": f"{self.stats['time']:.0f}ms"
+            })
+            return
+
+        current_frame = self.animation_data[self.animation_idx]
+
+        # --- Partial / Unobservable ---
+        if "Unobservable" in alg_name or "Partial Observable" in alg_name:
+            if self.animation_type == "start":
+                # Lấy state cuối cùng trong frame hiện tại
+                state = current_frame[-1] if isinstance(current_frame, list) and current_frame and isinstance(current_frame[0], list) else current_frame
+                self.current_rooks = normalize_state(state)
+                self.animation_idx += 1
+                self.sub_state_idx = 0
+            else:  # visualize
+                if not current_frame:
+                    self.animation_idx += 1
+                    self.sub_state_idx = 0
+                    return
+
+                if self.sub_state_idx >= len(current_frame):
+                    self.sub_state_idx = 0
+                    self.animation_idx += 1
+                    return
+
+                sub_state = current_frame[self.sub_state_idx]
+                if isinstance(sub_state, int):
+                    sub_state = [sub_state]
+
+                self.current_rooks = normalize_state(sub_state)
+                self.sub_state_idx += 1
+
+        # --- Start / Goal hoặc các thuật toán khác ---
+        else:
+            state = current_frame
+            if isinstance(state, list) and len(state) == 1 and isinstance(state[0], list):
+                state = state[0]
+            self.current_rooks = normalize_state(state)
             self.animation_idx += 1
 
-        elif self.animation_type == 'visualize':
-            states = self.animation_data
-            state_idx, rook_idx = divmod(self.animation_idx, 8)
-            if state_idx >= len(states):
-                self.stats["time"] = (time.time() - self.start_time) * 1000
-                self.history.insert(0, {
-                    "name": self.get_current_algorithm_name(),
-                    "nodes": self.stats["nodes_visited"],
-                    "length": self.stats["path_length"],
-                    "time": f"{self.stats['time']:.0f}ms"
-                })
-                if len(self.history) > 5:
-                    self.history = self.history[:5]
-                self.animation_active = False
-                self.is_running = False
-                return
+        # --- Cập nhật stats ---
+        if self._perf_snapshot:
+            total_nodes = self._perf_snapshot.get("nodes_visited", len(self.animation_data))
+            total_time = self._perf_snapshot.get("elapsed_time", 0) * 1000 * 50
 
-            current_state = states[state_idx]
-            if rook_idx >= len(current_state):
-                self.animation_idx += (8 - rook_idx)
-                return
+            if "Unobservable" in alg_name or "Partial Observable" in alg_name:
+                nodes_shown = 0
+                for idx, frame in enumerate(self.animation_data[:self.animation_idx]):
+                    if isinstance(frame, list) and frame and isinstance(frame[0], list):
+                        nodes_shown += len(frame)
+                    else:
+                        nodes_shown += 1
+                if self.animation_idx < len(self.animation_data):
+                    frame = self.animation_data[self.animation_idx]
+                    if isinstance(frame, list) and frame and isinstance(frame[0], list):
+                        nodes_shown += self.sub_state_idx
+                self.stats["nodes_visited"] = nodes_shown
+            else:
+                progress = (self.animation_idx + 1) / len(self.animation_data)
+                self.stats["nodes_visited"] = int(total_nodes * progress)
 
-            self.current_rooks = normalize_state(current_state[:rook_idx + 1])
-            self.visualizer.draw_animation_board(self.current_rooks)
-            self.animation_idx += 1
-
-
+            progress = min(1.0, self.stats["nodes_visited"] / total_nodes) if total_nodes > 0 else 0
+            self.stats["time"] = total_time * progress 
+            self.stats["path_length"] = len(self.current_rooks)
+    
     def draw_frame(self):
         self.screen.fill(WHITE)
         self.renderer.draw_all()

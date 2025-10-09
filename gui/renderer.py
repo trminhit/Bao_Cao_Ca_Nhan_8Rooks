@@ -318,14 +318,19 @@ class Renderer:
             no_data = self.small_font.render("No data available", True, GRAY)
             self.screen.blit(no_data, (stats_x + 10, stats_y + 170))
         else:
-            offset_y = 170
-            for i, entry in enumerate(self.game.history[-5:]):
-                color = BLACK if i % 2 == 0 else DARK_GRAY
-                name_text = self.small_font.render(f"#{len(self.game.history)-i}. {entry['name']}", True, color)
-                self.screen.blit(name_text, (stats_x + 10, stats_y + offset_y))
-                info_text = self.small_font.render(f"Nodes:{entry['nodes']} Len:{entry['length']} Time:{entry['time']}", True, color)
-                self.screen.blit(info_text, (stats_x + 10, stats_y + offset_y + 16))
-                offset_y += 38
+            # Hiển thị tối đa 5 bản ghi gần nhất
+            recent_runs = self.game.history[:5]
+
+            for i, record in enumerate(recent_runs):
+                base_y = stats_y + 170 + i * 40  # cách dòng 40px
+                name_text = self.small_font.render(f"{record['name']}", True, BLACK)
+                self.screen.blit(name_text, (stats_x + 10, base_y))
+
+                info_text = self.small_font.render(
+                    f"Nodes:{record['nodes']}  Len:{record['length']}  Time:{record['time']}",
+                    True, DARK_GRAY
+                )
+                self.screen.blit(info_text, (stats_x + 10, base_y + 18))
 
     def draw_board(self, x_start, y_start, rooks=None, cell_size=SMALL_CELL_SIZE):
         for r in range(8):

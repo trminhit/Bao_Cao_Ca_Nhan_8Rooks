@@ -1,6 +1,8 @@
 from .UCS_8Rooks import RookCost
 from .Greedy_8Rooks import H_Manhattan
 import heapq
+from engine.performance import PerformanceTracker
+from engine.common_goal import check_goal
 
 def AStarSearch(solution=None, mode="goal"):
     """
@@ -10,24 +12,29 @@ def AStarSearch(solution=None, mode="goal"):
         + h(n): heuristic H_Manhattan (ước lượng khoảng cách tới goal)
     - Thêm node vào priority queue theo f(n) nhỏ nhất.
     """
-    N = 8
+    N = len(solution)
     start = ()
     Queue = [(H_Manhattan(start, solution), 0, start)]  # (f, g, state)
     heapq.heapify(Queue)
+
     all_states = [] if mode == "all" else None
+    tracker = PerformanceTracker("A*")
+    tracker.start()
 
     while Queue:
         f, g, state = heapq.heappop(Queue)
+        tracker.add_node()
 
         # Lưu bước trung gian nếu mode "all"
         if mode == "all":
             all_states.append(list(state))
 
+        # Kiểm tra goal
         if len(state) == N:
             if list(state) == solution:
-                if mode == "all":
-                    return all_states  # trả tất cả bước
-                return list(state)    # trả goal
+                tracker.goal_found()
+                tracker.stop()
+                return (all_states, tracker.get_stats()) if mode=="all" else (list(state), tracker.get_stats())
             else:
                 continue
 
@@ -39,7 +46,5 @@ def AStarSearch(solution=None, mode="goal"):
                 new_h = H_Manhattan(new_state, solution)
                 heapq.heappush(Queue, (new_g + new_h, new_g, new_state))
 
-    # Nếu không tìm được solution
-    if mode == "all":
-        return all_states
-    return None
+    tracker.stop()
+    return (all_states, tracker.get_stats()) if mode=="all" else ([], tracker.get_stats())

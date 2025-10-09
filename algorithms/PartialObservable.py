@@ -1,5 +1,6 @@
 import random
 import itertools
+from engine.performance import PerformanceTracker  
 
 
 def make_start_belief(solution, k=5, extra_states=2, seed=None):
@@ -49,13 +50,9 @@ def make_goal_beliefs(solution, num_goals=5, k=5, seed=None):
             break
     return goals
 
+
 def successors(state, n, prefix_len):
-    """
-    Sinh 1 move hợp lệ và 1 place hợp lệ
-    - Move: chỉ di chuyển các quân sau prefix
-    - Place: thêm 1 quân nếu chưa đủ n
-    """
-    successors = []
+    successors_list = []
     row = len(state)
 
     # Move
@@ -65,28 +62,32 @@ def successors(state, n, prefix_len):
                 if col != state[r] and col not in state:
                     new_state = state.copy()
                     new_state[r] = col
-                    successors.append(new_state)
+                    successors_list.append(new_state)
                     break
-            if successors:
+            if successors_list:
                 break
 
     # Place
     if row < n:
         for col in range(n):
             if col not in state:
-                successors.append(state + [col])
+                successors_list.append(state + [col])
                 break
 
-    return successors
+    return successors_list
+
 
 def Find_Rooks_DFS_Belief(solution, mode="all", seed=None):
     n = len(solution)
+
+    perf = PerformanceTracker("Partial Observable DFS")
+    perf.start()
 
     start_belief = make_start_belief(solution, k=5, extra_states=2, seed=seed)
     goal_beliefs = make_goal_beliefs(solution, num_goals=5, seed=seed)
 
     visited = set()
-    path = []   # lưu lại các belief đã đi qua
+    path = []  # lưu lại các belief đã đi qua
     stack = [start_belief]  # stack khởi đầu với 1 belief (list các state)
 
     while stack:
@@ -96,17 +97,22 @@ def Find_Rooks_DFS_Belief(solution, mode="all", seed=None):
             continue
         visited.add(key)
         path.append(belief)
+        perf.add_node(len(belief))
 
         # check goal
         conds = [len(state) == n and state in goal_beliefs for state in belief]
         if any(conds):
+            perf.goal_found()
+            perf.stop()
+            
             if mode == "all":
-                return path
+                # Trả về (path, perf_dict) cho visualize
+                return (path, perf.get_stats())
             elif mode == "goal":
-                # trả về state đầy đủ đầu tiên trùng goal_beliefs
+                # Trả về (final_state, perf_dict) cho start
                 for state in belief:
                     if len(state) == n and state in goal_beliefs:
-                        return state
+                        return (state, perf.get_stats())
 
         # mở rộng successors
         new_belief = []
@@ -118,9 +124,12 @@ def Find_Rooks_DFS_Belief(solution, mode="all", seed=None):
         if new_belief:
             stack.append(new_belief)
 
-    # nếu không tìm thấy
+    # Kết thúc vòng lặp mà không tìm thấy goal
+    perf.stop()
+    
     if mode == "all":
-        return path
+        return (path, perf.get_stats())
     elif mode == "goal":
-        # trả về state đầu tiên của last belief
-        return path[-1][0] if path else None
+        # Trả về state cuối cùng trong belief cuối cùng
+        final_state = path[-1][0] if path and path[-1] else []
+        return (final_state, perf.get_stats())

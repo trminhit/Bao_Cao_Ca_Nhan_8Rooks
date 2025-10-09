@@ -1,4 +1,6 @@
 import heapq
+from engine.performance import PerformanceTracker
+from engine.common_goal import check_goal
 
 def H_Manhattan(state, solution):
     """Tính tổng khoảng cách Manhattan giữa state và solution"""
@@ -11,14 +13,18 @@ def GreedySearch(solution=None, mode="goal"):
     - Thêm quân đưa vào queue.
     - Luôn mở node có h nhỏ nhất (gần Goal nhất).
     """
-    N = 8
+    N = len(solution)
     start = ()
     Queue = [(H_Manhattan(start, solution), start)]
     heapq.heapify(Queue)
+    
     all_states = [] if mode == "all" else None
+    tracker = PerformanceTracker("Greedy")
+    tracker.start()
 
     while Queue:
         h, state = heapq.heappop(Queue)
+        tracker.add_node()
 
         # Lưu bước trung gian nếu mode "all"
         if mode == "all":
@@ -26,9 +32,9 @@ def GreedySearch(solution=None, mode="goal"):
 
         if len(state) == N:
             if list(state) == solution:
-                if mode == "all":
-                    return all_states  # trả tất cả bước đến solution
-                return list(state)  # mode goal
+                tracker.goal_found()
+                tracker.stop()
+                return (all_states, tracker.get_stats()) if mode=="all" else (list(state), tracker.get_stats())
             else:
                 continue
 
@@ -38,7 +44,6 @@ def GreedySearch(solution=None, mode="goal"):
                 new_state = state + (col,)
                 new_h = H_Manhattan(new_state, solution)
                 heapq.heappush(Queue, (new_h, new_state))
-    # Nếu không tìm được solution
-    if mode == "all":
-        return all_states
-    return None
+
+    tracker.stop()
+    return (all_states, tracker.get_stats()) if mode=="all" else ([], tracker.get_stats())
