@@ -33,7 +33,7 @@ def AC3(solution=None, mode="all"):
     while queue:
         xi, xj = queue.popleft()
         if remove_inconsistent_values(xi, xj):  # Nếu loại được giá trị
-            if not domains[xi]:  # domain trống => không có nghiệm
+            if not domains[xi]:  # domain trống -> không có nghiệm
                 tracker.stop()
                 return None, tracker.get_stats()
             # thêm các cung liên quan xi với các biến khác để kiểm tra tiếp
@@ -54,7 +54,7 @@ def AC3(solution=None, mode="all"):
 
         for val in random.sample(domains[depth], len(domains[depth])):
             if val not in state:
-                tracker.add_node()  # tăng node visited
+                tracker.add_node()  
                 state.append(val)
                 # Lưu bước trung gian nếu mode all
                 if mode == "all":

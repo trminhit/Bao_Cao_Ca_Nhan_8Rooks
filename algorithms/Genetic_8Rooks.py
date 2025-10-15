@@ -1,7 +1,6 @@
 import random
 from engine.performance import PerformanceTracker
 
-# --- CÁC HÀM PHỤ TRỢ ĐÃ ĐƯỢC CHUẨN HÓA ---
 
 def H_match(state, solution):
     """Tính heuristic - số quân đặt SAI vị trí (càng nhỏ càng tốt)."""

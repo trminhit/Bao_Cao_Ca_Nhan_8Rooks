@@ -169,10 +169,10 @@ def Find_Rooks_DFS_Belief(goal=None, mode="goal"):
     tracker = PerformanceTracker("Unobservable DFS")
     tracker.start()
     
-    # 1. Khởi tạo Start Belief động
+    #  Khởi tạo Start Belief động
     start_belief = make_start_belief(n)
     
-    # 2. DFS với belief states
+    #  DFS với belief states
     if mode == "goal":
         final_state = None
         final_perf = {}
@@ -212,10 +212,6 @@ def beliefs_to_states(beliefs):
     """
     Convert list of beliefs thành list of single states để dễ animate.
     Lấy state đầu tiên từ mỗi belief.
-    Args:
-        beliefs: List of beliefs [[state1, state2, ...], [state3, state4, ...], ...]
-    Returns:
-        List of single states [state1, state3, ...]
     """
     states = []
     for belief in beliefs:
@@ -227,10 +223,5 @@ def beliefs_to_states(beliefs):
 def belief_to_all_states(belief):
     """
     Convert 1 belief thành list tất cả states trong belief.
-    Dùng để visualize tất cả khả năng cùng lúc.
-    Args:
-        belief: List of states [state1, state2, state3, ...]
-    Returns:
-        List of states [state1, state2, state3, ...]
     """
     return belief

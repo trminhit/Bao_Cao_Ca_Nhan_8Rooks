@@ -13,5 +13,4 @@ def IDS(solution, mode="goal"):
         elif mode == "goal" and result:
             return result, perf  # trả về ngay khi tìm thấy goal
 
-    # Nếu không tìm thấy goal (mode="goal"), trả về [] + perf dict lần limit cuối cùng
     return (all_states, tracker_stats) if mode == "all" else ([], tracker_stats)

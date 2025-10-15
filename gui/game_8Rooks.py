@@ -14,7 +14,7 @@ from gui.renderer import (
     # Hằng số cho State Log từ renderer
     LOG_START_X, LOG_PANEL_Y, LOG_PANEL_WIDTH, LOG_PANEL_HEIGHT, LOG_LINE_HEIGHT
 )
-# Constants
+
 WINDOW_WIDTH = 1400
 WINDOW_HEIGHT = 800
 
@@ -147,7 +147,7 @@ class RooksGame:
 
             alg_name = self.get_current_algorithm_name()
 
-            # --- Tính nodes đã hiển thị ---
+            #Tính nodes đã hiển thị
             nodes_shown = 0
             if "Unobservable" in alg_name or "Partial Observable" in alg_name:
                 for idx, frame in enumerate(self.animation_data[:self.animation_idx]):
@@ -164,7 +164,7 @@ class RooksGame:
             else:
                 nodes_shown = self.animation_idx
 
-            # --- Cập nhật stats ---
+            # Cập nhật stats
             self.stats["nodes_visited"] = nodes_shown
             total_time = perf.get("elapsed_time", 0.0) * 1000 * 50
             if perf.get("nodes_visited", 0) > 0:
@@ -177,7 +177,7 @@ class RooksGame:
             if not perf.get("solution_found", False):
                 self.stats["path_length"] = 0
 
-            # --- Ghi history ---
+            # Ghi history
             if self.stats["nodes_visited"] > 0:
                 self.history.insert(0, {
                     "name": alg_name,
@@ -186,7 +186,7 @@ class RooksGame:
                     "time": f"{self.stats['time']:.0f}ms"
                 })
 
-            # --- Dừng animation ---
+            # Dừng animation
             self.animation_active = False
             self.is_running = False
             self.draw_frame()
@@ -212,7 +212,7 @@ class RooksGame:
 
         alg_name = self.get_current_algorithm_name()
         if alg_name not in self.algorithms:
-            print(f"⚠ Algorithm {alg_name} not implemented!")
+            print(f"Algorithm {alg_name} not implemented!")
             self.is_running = False
             return
 
@@ -284,7 +284,6 @@ class RooksGame:
                 if hasattr(result, '__next__'):
                     all_beliefs = []
                     last_perf = {}
-                    # result is a generator yielding (belief, perf)
                     try:
                         while True:
                             belief, perf = next(result)
@@ -378,7 +377,7 @@ class RooksGame:
         if not hasattr(self, 'sub_state_idx'):
             self.sub_state_idx = 0
 
-        # --- Kiểm tra kết thúc animation ---
+        # Kiểm tra kết thúc animation
         if self.animation_idx >= len(self.animation_data):
             self.animation_active = False
             self.is_running = False

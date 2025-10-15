@@ -1,6 +1,5 @@
 import heapq
 from engine.performance import PerformanceTracker
-from engine.common_goal import check_goal, handle_goal_found
 
 def RookCost(state, col, solution):
     """Tính chi phí đặt quân vào cột col ở state hiện tại."""

@@ -17,13 +17,13 @@ LOG_LINE_HEIGHT = 18
 WHITE = (255, 255, 255) 
 
 PASTEL_BG = (230, 240, 245)           # Nền chính 
-PASTEL_ACCENT = (100,130,180)        # Màu nhấn/lựa chọn (Vibrant Sky Blue)
-PASTEL_DARK_TEXT = (40, 60, 80)       # Chữ chính, tiêu đề (Charcoal Blue)
+PASTEL_ACCENT = (100,130,180)        # Màu nhấn/lựa chọn 
+PASTEL_DARK_TEXT = (40, 60, 80)       # Chữ chính, tiêu đề 
 
 PASTEL_MEDIUM_TEXT = (80, 100, 120)   # Chữ phụ, mô tả 
 PASTEL_LIGHT_BORDER = (160, 200, 210) # Đường viền, phân cách 
-DISABLED_BG = (220, 220, 220)         # Nền nút thụ động (Light Gray)
-DISABLED_TEXT = (150, 150, 150)       # Chữ nút thụ động (Medium Gray)
+DISABLED_BG = (220, 220, 220)         # Nền nút thụ động 
+DISABLED_TEXT = (150, 150, 150)       # Chữ nút thụ động 
 PASTEL_LIGHT_TEXT_ON_ACCENT = (200, 220, 230)
 
 # Màu bàn cờ pastel
@@ -138,12 +138,12 @@ class Renderer:
             button_rect = pygame.Rect(start_x, y, self.ALG_BUTTON_WIDTH, self.ALG_BUTTON_HEIGHT)
 
             if self.game.selected_algorithm == i:
-                # Trạng thái ĐÃ CHỌN: Nền Màu Nhấn (PASTEL_ACCENT)
+                # Trạng thái đã chọn: Nền Màu Nhấn (PASTEL_ACCENT)
                 pygame.draw.rect(self.screen, PASTEL_ACCENT, button_rect, border_radius=self.BUTTON_RADIUS)
                 name_color = WHITE
                 desc_color = PASTEL_LIGHT_TEXT_ON_ACCENT  # Desc hơi mờ đi để tên thuật toán nổi bật hơn
             else:
-                # Trạng thái KHÔNG CHỌN: Nền Trắng, Viền Màu Nhấn
+                # Trạng thái không chọn: Nền Trắng, Viền Màu Nhấn
                 pygame.draw.rect(self.screen, WHITE, button_rect, border_radius=self.BUTTON_RADIUS)
                 pygame.draw.rect(self.screen, PASTEL_LIGHT_BORDER, button_rect, 1, border_radius=self.BUTTON_RADIUS)
                 name_color = PASTEL_DARK_TEXT # Tên thuật toán màu đậm
@@ -195,7 +195,7 @@ class Renderer:
                 pygame.draw.rect(self.screen, PASTEL_ACCENT, button_rect, border_radius=self.BUTTON_RADIUS)
                 text_color = WHITE
             else:
-                # Nút KHÔNG ACTIVE (Thụ động): Nền Xám Thụ động, Viền Xám, Chữ Xám
+                # Nút KHÔNG ACTIVE : Nền Xám Thụ động, Viền Xám, Chữ Xám
                 pygame.draw.rect(self.screen, DISABLED_BG, button_rect, border_radius=self.BUTTON_RADIUS) 
                 pygame.draw.rect(self.screen, DISABLED_TEXT, button_rect, 1, border_radius=self.BUTTON_RADIUS)
                 text_color = DISABLED_TEXT # <-- Dùng màu chữ thụ động
@@ -226,7 +226,7 @@ class Renderer:
         pygame.draw.rect(self.screen, WHITE, stats_rect, border_radius=self.BUTTON_RADIUS)
         pygame.draw.rect(self.screen, PASTEL_LIGHT_BORDER, stats_rect, 1, border_radius=self.BUTTON_RADIUS)
 
-        # Sử dụng PASTEL_DARK_TEXT mới
+        # Sử dụng PASTEL_DARK_TEXT 
         title = self.font.render("Current Run", True, PASTEL_DARK_TEXT)
         self.screen.blit(title, (stats_x + 10, stats_y + 10))
         
@@ -263,7 +263,7 @@ class Renderer:
 
                 info_text = self.small_font.render(
                 f"Nodes:{record['nodes']}  Len:{record['length']}  Time:{record['time']}",
-                True, PASTEL_MEDIUM_TEXT # <-- Dùng màu chữ phụ mới
+                True, PASTEL_MEDIUM_TEXT 
                 )
                 self.screen.blit(info_text, (stats_x + 10, base_y + 18))
 
@@ -273,13 +273,11 @@ class Renderer:
         for r in range(8):
             for c in range(8):
                 x1, y1 = x_start + c * cell_size, y_start + r * cell_size
-                # Dùng màu bàn cờ pastel mới
                 color = BOARD_LIGHT_CELL if (r + c) % 2 == 0 else BOARD_DARK_CELL
                 pygame.draw.rect(self.screen, color, (x1, y1, cell_size, cell_size))
                 
         pygame.draw.rect(self.screen, PASTEL_LIGHT_BORDER, board_rect, 1) # Vẽ viền 1px
 
-        # Chữ tọa độ bàn cờ dùng màu đậm để dễ nhìn
         for c in range(8):
             x_center = x_start + c * cell_size + cell_size // 2
             text = self.small_font.render(chr(ord('a') + c), True, PASTEL_MEDIUM_TEXT) 
@@ -357,7 +355,7 @@ class Renderer:
                          source_rect)
         
     def draw_stats_panel(self):
-        """**CẬP NHẬT:** Vẽ bảng thống kê với giao diện tab."""
+        """ Vẽ bảng thống kê với giao diện tab."""
         # Lớp phủ mờ
         overlay = pygame.Surface((self.screen.get_width(), self.screen.get_height()), pygame.SRCALPHA)
         overlay.fill((PASTEL_BG[0], PASTEL_BG[1], PASTEL_BG[2], 220))
@@ -381,7 +379,7 @@ class Renderer:
         close_text = self.font.render("X", True, WHITE)
         self.screen.blit(close_text, close_text.get_rect(center=close_rect.center))
 
-        # ---- Vẽ các Tab ----
+        # Vẽ các Tab
         tab_names = {1: "Overall Stats", 2: "Success Analysis", 3: "Group Champions"}
         for i in range(1, 4):
             tab_rect = self.get_stats_tab_rect(i)
@@ -394,7 +392,7 @@ class Renderer:
             tab_text = self.small_font.render(tab_names[i], True, text_color)
             self.screen.blit(tab_text, tab_text.get_rect(center=tab_rect.center))
         
-        # ---- Vẽ nội dung của Tab ----
+        #Vẽ nội dung của Tab
         content_y_start = panel_y + 100
         active_tab = self.game.stats_active_tab
         
@@ -421,22 +419,20 @@ class Renderer:
             if not stats_source:
                 self.draw_no_data_message(panel_x, content_y_start, "No successful runs to analyze by group.")
                 return
-            # Dữ liệu cho biểu đồ Tab 3 là danh sách các nhóm và "nhà vô địch" của chúng
+            # Dữ liệu cho biểu đồ Tab 3
             chart_data = list(stats_source.items())
             self.draw_group_charts(panel_x, content_y_start, panel_width, chart_data)
     def draw_bar_chart(self, x, y, width, height, data, data_key, title, color, show_champion_name=False):
         """
-        Vẽ một biểu đồ thanh ngang (Horizontal Bar Chart) hoàn chỉnh.
+        Vẽ một biểu đồ thanh ngang (Horizontal Bar Chart)
         - Sắp xếp các thanh từ dài nhất đến ngắn nhất.
         - Hiển thị tên (thuật toán hoặc nhóm) ở bên trái.
         - Hiển thị giá trị ở cuối mỗi thanh.
         - Có thể tùy chọn hiển thị tên "nhà vô địch" cho biểu đồ nhóm.
         """
-        # 1. Vẽ tiêu đề biểu đồ
         chart_title_text = self.font.render(title, True, PASTEL_DARK_TEXT)
         self.screen.blit(chart_title_text, chart_title_text.get_rect(centerx=x + width / 2, y=y))
 
-        # 2. Xác định khu vực vẽ chính
         # Trục Y (dọc) là nơi chứa tên
         label_area_width = 150  # Dành không gian bên trái cho tên
         plot_area_x = x + label_area_width
@@ -447,17 +443,17 @@ class Renderer:
         plot_height = height - 60
         plot_right_x = plot_area_x + plot_width
 
-        # 3. Vẽ các trục tọa độ
+        #  Vẽ các trục tọa độ
         pygame.draw.line(self.screen, PASTEL_LIGHT_BORDER, (plot_area_x, plot_area_y), (plot_area_x, plot_area_y + plot_height), 2)
         pygame.draw.line(self.screen, PASTEL_LIGHT_BORDER, (plot_area_x, plot_area_y + plot_height), (plot_right_x, plot_area_y + plot_height), 2)
 
         if not data:
             return
 
-        # 4. Sắp xếp dữ liệu để thanh dài nhất luôn ở trên cùng
+        # Sắp xếp dữ liệu để thanh dài nhất luôn ở trên cùng
         data.sort(key=lambda item: item[1][data_key], reverse=True)
 
-        # 5. Xác định thang đo và vẽ các mốc giá trị
+        # Xác định thang đo và vẽ các mốc giá trị
         max_value = data[0][1][data_key] if data else 0
         if max_value == 0: max_value = 1
 
@@ -466,7 +462,7 @@ class Renderer:
         self.screen.blit(max_label, max_label.get_rect(midtop=(plot_right_x, plot_area_y + plot_height + 5)))
         self.screen.blit(mid_label, mid_label.get_rect(midtop=(plot_area_x + plot_width / 2, plot_area_y + plot_height + 5)))
 
-        # 6. Tính toán kích thước và vẽ từng thanh
+        # Tính toán kích thước và vẽ từng thanh
         num_items = len(data)
         total_bar_height_area = plot_height - 20
         bar_spacing = 5
@@ -484,11 +480,11 @@ class Renderer:
             bar_rect = pygame.Rect(bar_x, bar_y, bar_length, bar_height)
             pygame.draw.rect(self.screen, color, bar_rect, border_top_right_radius=4, border_bottom_right_radius=4)
 
-            # 7. Vẽ nhãn tên (tùy chỉnh cho 2 loại biểu đồ)
+            # Vẽ nhãn tên (tùy chỉnh cho 2 loại biểu đồ)
             main_label_text = self.small_font.render(label_name, True, PASTEL_DARK_TEXT)
             
             if show_champion_name:
-                # Dành cho Tab 3: Hiển thị tên Nhóm và tên "nhà vô địch"
+                # Dành cho Tab 3: Hiển thị tên Nhóm 
                 self.screen.blit(main_label_text, main_label_text.get_rect(midright=(bar_x - 10, bar_y + bar_height / 2 - 5)))
                 champion_name = stats_data.get('name', '')
                 champion_text = pygame.font.SysFont("segoeui", 11).render(f"({champion_name})", True, PASTEL_MEDIUM_TEXT)

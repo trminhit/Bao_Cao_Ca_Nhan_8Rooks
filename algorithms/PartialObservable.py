@@ -122,7 +122,7 @@ def Find_Rooks_DFS_Belief(solution, mode="all", seed=None):
         path.append(belief)
         perf.add_node(len(belief))
 
-        # --- Sửa ở đây: kiểm tra toàn bộ belief ---
+        # kiểm tra toàn bộ belief 
         if all(len(s) == n and s in goal_beliefs for s in belief):
             perf.goal_found()
             perf.stop()
