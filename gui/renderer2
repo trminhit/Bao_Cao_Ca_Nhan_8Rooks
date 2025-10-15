@@ -41,10 +41,10 @@ class Renderer:
         self.title_font = pygame.font.SysFont("segoeui", 28, bold=True)
         self.small_font = pygame.font.SysFont("segoeui", 16)
 
-        self.GROUP_BUTTON_WIDTH = 250
-        self.GROUP_BUTTON_HEIGHT = 55
+        self.GROUP_BUTTON_WIDTH = 180
+        self.GROUP_BUTTON_HEIGHT = 50
         self.ALG_BUTTON_WIDTH = 250
-        self.ALG_BUTTON_HEIGHT = 55
+        self.ALG_BUTTON_HEIGHT = 60
         self.BUTTON_SPACING = 5
         self.BUTTON_RADIUS = 8
 
@@ -90,42 +90,56 @@ class Renderer:
                     {"name": "Forward Checking", "desc": "Forward Checking"},
                     {"name": "Arc Consistency Algorithm 3", "desc": "Arc Consistency Algorithm 3"}
                 ]
+            },
+            {
+                "name": "Machine Learning",
+                "algorithms": [
+                    {"name": "Q-Learning", "desc": "Q-Learning"},
+                    {"name": "Neural Network Path", "desc": "Neural Network Pathfinding"},
+                    {"name": "Random Forest Path", "desc": "Random Forest Pathfinding"}
+                ]
             }
         ]
 
     def draw_group_buttons(self):
-        start_x = 40 
+        start_x = 10
         start_y = BOARD_OFFSET_Y
         for i, group in enumerate(self.algorithm_groups):
-            x = start_x
-            y = start_y + i * (self.GROUP_BUTTON_HEIGHT + self.BUTTON_SPACING)
+            row = i // 2
+            col = i % 2
+            x = start_x + col * (self.GROUP_BUTTON_WIDTH + self.BUTTON_SPACING)
+            y = start_y + row * (self.GROUP_BUTTON_HEIGHT + self.BUTTON_SPACING)
             button_rect = pygame.Rect(x, y, self.GROUP_BUTTON_WIDTH, self.GROUP_BUTTON_HEIGHT)
 
             if self.game.selected_group == i:
+                # Trạng thái ĐÃ CHỌN: Nền Màu Nhấn (PASTEL_ACCENT)
                 pygame.draw.rect(self.screen, PASTEL_ACCENT, button_rect, border_radius=self.BUTTON_RADIUS)
-                text_color = WHITE
+                text_color = WHITE  # Chữ trắng trên nền xanh pastel
             else:
+                # Trạng thái KHÔNG CHỌN: Nền Trắng, Viền Màu Nhấn
                 pygame.draw.rect(self.screen, WHITE, button_rect, border_radius=self.BUTTON_RADIUS)
                 pygame.draw.rect(self.screen, PASTEL_ACCENT, button_rect, 1, border_radius=self.BUTTON_RADIUS)
-                text_color = PASTEL_DARK_TEXT
+                text_color = PASTEL_DARK_TEXT  # Chữ đen-xám đậm
 
             text = self.small_font.render(group["name"], True, text_color)
             text_rect = text.get_rect(center=button_rect.center)
             self.screen.blit(text, text_rect)
 
     def get_group_button_rect(self, i):
-        start_x = 40
+        start_x = 10
         start_y = BOARD_OFFSET_Y
-        x = start_x
-        y = start_y + i * (self.GROUP_BUTTON_HEIGHT + self.BUTTON_SPACING)
+        row = i // 2
+        col = i % 2
+        x = start_x + col * (self.GROUP_BUTTON_WIDTH + self.BUTTON_SPACING)
+        y = start_y + row * (self.GROUP_BUTTON_HEIGHT + self.BUTTON_SPACING)
         return pygame.Rect(x, y, self.GROUP_BUTTON_WIDTH, self.GROUP_BUTTON_HEIGHT)
 
     def draw_algorithm_buttons(self):
         if self.game.selected_group < 0 or self.game.selected_group >= len(self.algorithm_groups):
             return
             
-        start_x = 40
-        start_y = BOARD_OFFSET_Y + len(self.algorithm_groups) * (self.GROUP_BUTTON_HEIGHT + self.BUTTON_SPACING) + 50
+        start_x = 10
+        start_y = BOARD_OFFSET_Y + 3 * (self.GROUP_BUTTON_HEIGHT + self.BUTTON_SPACING) + 40
         spacing = self.BUTTON_SPACING
         current_group = self.algorithm_groups[self.game.selected_group]
         
@@ -155,11 +169,11 @@ class Renderer:
             self.screen.blit(desc_text, (start_x + 10, y + 30))
 
     def get_algorithm_button_rect(self, group_index, alg_index):
-        start_x = 40
-        start_y = BOARD_OFFSET_Y + len(self.algorithm_groups) * (self.GROUP_BUTTON_HEIGHT + self.BUTTON_SPACING) + 30
+        start_x = 10
+        start_y = BOARD_OFFSET_Y + 3 * (self.GROUP_BUTTON_HEIGHT + self.BUTTON_SPACING) + 40
         y = start_y + alg_index * (self.ALG_BUTTON_HEIGHT + self.BUTTON_SPACING)
         return pygame.Rect(start_x, y, self.ALG_BUTTON_WIDTH, self.ALG_BUTTON_HEIGHT)
-    
+
     def draw_controls(self):
         button_width = 120 # Giữ nguyên hoặc điều chỉnh theo ý bạn
         button_height = 40
@@ -382,7 +396,7 @@ class Renderer:
         self.screen.blit(close_text, close_text.get_rect(center=close_rect.center))
 
         # ---- Vẽ các Tab ----
-        tab_names = {1: "Overall Stats", 2: "Success Analysis", 3: "Group Champions"}
+        tab_names = {1: "Overall Stats", 2: "Success Analysis (Len=8)", 3: "Future Work"}
         for i in range(1, 4):
             tab_rect = self.get_stats_tab_rect(i)
             if self.game.stats_active_tab == i:
@@ -410,99 +424,71 @@ class Renderer:
             if not stats_source:
                 self.draw_no_data_message(panel_x, content_y_start, "No successful runs (length=8) recorded yet.")
                 return
-            # Dữ liệu cho biểu đồ Tab 2 là danh sách các thuật toán thành công
-            chart_data = list(stats_source.items())
-            # Đổi tên nhãn để rõ ràng hơn
-            chart_data_renamed = [(alg_data['name'], alg_data) for _, alg_data in chart_data]
-            self.draw_stats_charts(panel_x, content_y_start, panel_width, chart_data_renamed)
+            self.draw_stats_charts(panel_x, content_y_start, panel_width, list(stats_source.items()))
 
         elif active_tab == 3:
-            stats_source = self.game.calculated_stats.get("group_bests")
-            if not stats_source:
-                self.draw_no_data_message(panel_x, content_y_start, "No successful runs to analyze by group.")
-                return
-            # Dữ liệu cho biểu đồ Tab 3 là danh sách các nhóm và "nhà vô địch" của chúng
-            chart_data = list(stats_source.items())
-            self.draw_group_charts(panel_x, content_y_start, panel_width, chart_data)
-    def draw_bar_chart(self, x, y, width, height, data, data_key, title, color, show_champion_name=False):
-        """
-        Vẽ một biểu đồ thanh ngang (Horizontal Bar Chart) hoàn chỉnh.
-        - Sắp xếp các thanh từ dài nhất đến ngắn nhất.
-        - Hiển thị tên (thuật toán hoặc nhóm) ở bên trái.
-        - Hiển thị giá trị ở cuối mỗi thanh.
-        - Có thể tùy chọn hiển thị tên "nhà vô địch" cho biểu đồ nhóm.
-        """
-        # 1. Vẽ tiêu đề biểu đồ
+            self.draw_no_data_message(panel_x, content_y_start, "This tab is reserved for future analysis.")
+
+    def draw_bar_chart(self, x, y, width, height, data, data_key, title, color):
+        """Hàm trợ giúp để vẽ một biểu đồ cột hoàn chỉnh."""
+        # Tiêu đề biểu đồ
         chart_title_text = self.font.render(title, True, PASTEL_DARK_TEXT)
         self.screen.blit(chart_title_text, chart_title_text.get_rect(centerx=x + width / 2, y=y))
 
-        # 2. Xác định khu vực vẽ chính
-        # Trục Y (dọc) là nơi chứa tên
-        label_area_width = 150  # Dành không gian bên trái cho tên
-        plot_area_x = x + label_area_width
-        plot_width = width - label_area_width - 10
+        # Khu vực vẽ thực tế (trừ đi lề cho tiêu đề và nhãn)
+        plot_area_y = y + 30
+        plot_height = height - 40 # Trừ lề trên và dưới
+        plot_bottom_y = plot_area_y + plot_height
 
-        # Trục X (ngang) là thang đo giá trị
-        plot_area_y = y + 40
-        plot_height = height - 60
-        plot_right_x = plot_area_x + plot_width
-
-        # 3. Vẽ các trục tọa độ
-        pygame.draw.line(self.screen, PASTEL_LIGHT_BORDER, (plot_area_x, plot_area_y), (plot_area_x, plot_area_y + plot_height), 2)
-        pygame.draw.line(self.screen, PASTEL_LIGHT_BORDER, (plot_area_x, plot_area_y + plot_height), (plot_right_x, plot_area_y + plot_height), 2)
+        # Vẽ trục tọa độ
+        pygame.draw.line(self.screen, PASTEL_LIGHT_BORDER, (x, plot_bottom_y), (x + width, plot_bottom_y), 2)
+        pygame.draw.line(self.screen, PASTEL_LIGHT_BORDER, (x, plot_area_y), (x, plot_bottom_y), 2)
 
         if not data:
             return
 
-        # 4. Sắp xếp dữ liệu để thanh dài nhất luôn ở trên cùng
-        data.sort(key=lambda item: item[1][data_key], reverse=True)
+        # Tìm giá trị lớn nhất để xác định thang đo
+        max_value = 0
+        for _, alg_data in data:
+            if alg_data[data_key] > max_value:
+                max_value = alg_data[data_key]
+        
+        if max_value == 0: # Tránh chia cho 0
+            max_value = 1
 
-        # 5. Xác định thang đo và vẽ các mốc giá trị
-        max_value = data[0][1][data_key] if data else 0
-        if max_value == 0: max_value = 1
-
+        # Vẽ nhãn cho trục Y (0, nửa, max)
         max_label = self.small_font.render(f"{max_value:.0f}", True, PASTEL_MEDIUM_TEXT)
         mid_label = self.small_font.render(f"{max_value/2:.0f}", True, PASTEL_MEDIUM_TEXT)
-        self.screen.blit(max_label, max_label.get_rect(midtop=(plot_right_x, plot_area_y + plot_height + 5)))
-        self.screen.blit(mid_label, mid_label.get_rect(midtop=(plot_area_x + plot_width / 2, plot_area_y + plot_height + 5)))
+        self.screen.blit(max_label, max_label.get_rect(midright=(x - 5, plot_area_y)))
+        self.screen.blit(mid_label, mid_label.get_rect(midright=(x - 5, plot_area_y + plot_height / 2)))
 
-        # 6. Tính toán kích thước và vẽ từng thanh
-        num_items = len(data)
-        total_bar_height_area = plot_height - 20
-        bar_spacing = 5
-        bar_height = max(2, (total_bar_height_area - (num_items - 1) * bar_spacing) / num_items if num_items > 0 else 0)
+        # Vẽ các cột
+        num_algs = len(data)
+        total_bar_width = width - 40 # Để lại lề 2 bên
+        bar_spacing = 10
+        bar_width = (total_bar_width - (num_algs - 1) * bar_spacing) / num_algs if num_algs > 0 else 0
 
-        for i, (label_name, stats_data) in enumerate(data):
-            value = stats_data[data_key]
+        for i, (alg_name, alg_data) in enumerate(data):
+            value = alg_data[data_key]
             
-            # Tính chiều dài và vị trí
-            bar_length = (value / max_value) * plot_width
-            bar_x = plot_area_x
-            bar_y = plot_area_y + 10 + i * (bar_height + bar_spacing)
+            # Tính chiều cao và vị trí cột
+            bar_height = (value / max_value) * plot_height
+            bar_x = x + 20 + i * (bar_width + bar_spacing)
+            bar_y = plot_bottom_y - bar_height
             
-            # Vẽ thanh
-            bar_rect = pygame.Rect(bar_x, bar_y, bar_length, bar_height)
-            pygame.draw.rect(self.screen, color, bar_rect, border_top_right_radius=4, border_bottom_right_radius=4)
+            # Vẽ cột
+            bar_rect = pygame.Rect(bar_x, bar_y, bar_width, bar_height)
+            pygame.draw.rect(self.screen, color, bar_rect, border_top_left_radius=4, border_top_right_radius=4)
 
-            # 7. Vẽ nhãn tên (tùy chỉnh cho 2 loại biểu đồ)
-            main_label_text = self.small_font.render(label_name, True, PASTEL_DARK_TEXT)
-            
-            if show_champion_name:
-                # Dành cho Tab 3: Hiển thị tên Nhóm và tên "nhà vô địch"
-                self.screen.blit(main_label_text, main_label_text.get_rect(midright=(bar_x - 10, bar_y + bar_height / 2 - 5)))
-                champion_name = stats_data.get('name', '')
-                champion_text = pygame.font.SysFont("segoeui", 11).render(f"({champion_name})", True, PASTEL_MEDIUM_TEXT)
-                self.screen.blit(champion_text, champion_text.get_rect(midright=(bar_x - 10, bar_y + bar_height / 2 + 10)))
-            else:
-                # Dành cho Tab 2: Chỉ hiển thị tên thuật toán
-                self.screen.blit(main_label_text, main_label_text.get_rect(midright=(bar_x - 10, bar_y + bar_height / 2)))
+            # Vẽ giá trị trên đỉnh cột
+            value_text = self.small_font.render(f"{value:.0f}", True, color)
+            self.screen.blit(value_text, value_text.get_rect(centerx=bar_x + bar_width/2, bottom=bar_y - 2))
 
-            # 8. Vẽ nhãn giá trị ở cuối thanh
-            value_text_surface = self.small_font.render(f"{value:.0f}", True, color)
-            if bar_length > 50: # Nếu thanh đủ dài, đặt giá trị bên trong
-                self.screen.blit(value_text_surface, value_text_surface.get_rect(midright=(bar_x + bar_length - 5, bar_y + bar_height / 2)))
-            else: # Nếu thanh ngắn, đặt giá trị bên ngoài
-                self.screen.blit(value_text_surface, value_text_surface.get_rect(midleft=(bar_x + bar_length + 5, bar_y + bar_height / 2)))
+            # Vẽ tên thuật toán dưới cột
+            name_text = self.small_font.render(alg_name, True, PASTEL_DARK_TEXT)
+            # Xoay chữ nếu cần
+            name_text = pygame.transform.rotate(name_text, 0)
+            self.screen.blit(name_text, name_text.get_rect(topright=(bar_x + bar_width, plot_bottom_y + 5)))
     
     def get_stats_panel_close_button_rect(self):
         panel_width = 900
@@ -563,50 +549,7 @@ class Renderer:
             x=chart2_x, y=chart_area_y, width=chart1_width, height=chart_height,
             data=data, data_key='avg_time', title='Average Time (ms) (Success Cases)',
             color=(110, 180, 130)
-        )    
-    
-    def draw_stats_charts(self, panel_x, y_start, panel_width, data):
-        """Vẽ biểu đồ so sánh giữa các thuật toán riêng lẻ (Tab 2)."""
-        chart_area_y = y_start + 20
-        chart_height = 400
-
-        chart1_x = panel_x + 50
-        chart1_width = 380
-        self.draw_bar_chart(
-            x=chart1_x, y=chart_area_y, width=chart1_width, height=chart_height,
-            data=data, data_key='avg_nodes', title='Average Nodes (Success Cases)',
-            color=(100, 130, 180)
-        )
-
-        chart2_x = panel_x + panel_width - chart1_width - 50
-        self.draw_bar_chart(
-            x=chart2_x, y=chart_area_y, width=chart1_width, height=chart_height,
-            data=data, data_key='avg_time', title='Average Time (ms) (Success Cases)',
-            color=(110, 180, 130)
-        )
-
-    def draw_group_charts(self, panel_x, y_start, panel_width, data):
-        """Vẽ biểu đồ so sánh giữa các nhóm thuật toán (Tab 3)."""
-        chart_area_y = y_start + 20
-        chart_height = 400
-
-        chart1_x = panel_x + 50
-        chart1_width = 380
-        self.draw_bar_chart(
-            x=chart1_x, y=chart_area_y, width=chart1_width, height=chart_height,
-            data=data, data_key='avg_nodes', title='Average Nodes (Group Champions)',
-            color=(100, 130, 180),
-            show_champion_name=True
-        )
-
-        chart2_x = panel_x + panel_width - chart1_width - 50
-        self.draw_bar_chart(
-            x=chart2_x, y=chart_area_y, width=chart1_width, height=chart_height,
-            data=data, data_key='avg_time', title='Average Time (ms) (Group Champions)',
-            color=(110, 180, 130),
-            show_champion_name=True
-        ) 
-            
+        )        
     def draw_all(self):
         
         self.draw_group_buttons()

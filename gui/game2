@@ -479,8 +479,9 @@ class RooksGame:
             return
 
         # Hàm trợ giúp để tính toán
-        def _calculate_stats_from_history(history_data):
-            if not history_data: return None
+        def _calculate(history_data):
+            if not history_data:
+                return None
             stats_by_alg = defaultdict(lambda: {
                 "runs": 0, "total_nodes": 0, "total_time": 0,
                 "total_length": 0, "successes": 0
@@ -493,52 +494,29 @@ class RooksGame:
                 try:
                     time_val = float(run['time'].replace('ms', ''))
                     stats["total_time"] += time_val
-                except (ValueError, AttributeError): pass
+                except (ValueError, AttributeError):
+                    pass
                 stats["total_length"] += run['length']
-                if run['length'] > 0: stats["successes"] += 1
+                if run['length'] > 0:
+                    stats["successes"] += 1
             
             for alg_name, data in stats_by_alg.items():
                 runs = data["runs"]
                 data["avg_nodes"] = data["total_nodes"] / runs
                 data["avg_time"] = data["total_time"] / runs
+                # Chỉ tính avg_length cho các lần thành công để tránh chia cho 0
                 successful_runs = data['successes'] if data['successes'] > 0 else 1
                 data["avg_length"] = data["total_length"] / successful_runs
                 data["success_rate"] = data["successes"] / runs
+            
             return dict(stats_by_alg)
 
-        def _find_group_champions(successful_stats):
-            if not successful_stats: return None
-
-            alg_to_group_map = {
-                alg['name']: group['name']
-                for group in self.renderer.algorithm_groups
-                for alg in group['algorithms']
-            }
-
-            grouped_algs = defaultdict(list)
-            for alg_name, stats in successful_stats.items():
-                group_name = alg_to_group_map.get(alg_name)
-                if group_name:
-                    stats['name'] = alg_name # Gắn tên thuật toán vào dict để dùng sau
-                    grouped_algs[group_name].append(stats)
-
-            group_champions = {}
-            for group_name, alg_list in grouped_algs.items():
-                # Tiêu chí chọn "nhà vô địch": avg_time thấp nhất, nếu bằng nhau thì avg_nodes thấp hơn
-                best_alg = min(alg_list, key=lambda x: (x['avg_time'], x['avg_nodes']))
-                group_champions[group_name] = best_alg
-            
-            return group_champions
-        # Tính toán cho cả 3 tab
-        all_runs_stats = _calculate_stats_from_history(self.history)
+        # Tính toán cho cả 2 tab
         successful_history = [run for run in self.history if run['length'] == 8]
-        successful_runs_stats = _calculate_stats_from_history(successful_history)
-        group_bests_stats = _find_group_champions(successful_runs_stats)
-
+        
         self.calculated_stats = {
-            "all_runs": all_runs_stats,
-            "successful_runs": successful_runs_stats,
-            "group_bests": group_bests_stats
+            "all_runs": _calculate(self.history),
+            "successful_runs": _calculate(successful_history)
         }
     
     def draw_frame(self):

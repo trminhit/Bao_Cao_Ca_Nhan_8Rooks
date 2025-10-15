@@ -32,7 +32,6 @@ class RooksGame:
         # Thuộc tính vẽ thống kê
         self.show_stats_panel = False
         self.calculated_stats = {}
-        self.stats_active_tab = 1
         
         rook_img = Image.open("assets/Rook_img.png").resize((SMALL_CELL_SIZE, SMALL_CELL_SIZE))
         self.rook_img = pygame.image.fromstring(rook_img.tobytes(), rook_img.size, rook_img.mode)
@@ -86,11 +85,8 @@ class RooksGame:
         if self.show_stats_panel:
             if self.renderer.get_stats_panel_close_button_rect().collidepoint(pos):
                 self.show_stats_panel = False
-                return # Không xử lý các click khác khi bảng đang mở
-            for i in range(1, 4): # Có 3 tab
-                    if self.renderer.get_stats_tab_rect(i).collidepoint(pos):
-                        self.stats_active_tab = i
-                        return # Dừng lại sau khi chuyển tab        
+            return # Không xử lý các click khác khi bảng đang mở
+        
         for i in range(len(self.renderer.algorithm_groups)):
             if self.renderer.get_group_button_rect(i).collidepoint(pos):
                 self.selected_group = i
@@ -474,71 +470,44 @@ class RooksGame:
             self.stats["path_length"] = len(self.current_rooks)
             
     def calculate_statistics(self):
+        """Tính toán thống kê từ self.history và lưu vào self.calculated_stats."""
         if not self.history:
             self.calculated_stats = {}
             return
 
-        # Hàm trợ giúp để tính toán
-        def _calculate_stats_from_history(history_data):
-            if not history_data: return None
-            stats_by_alg = defaultdict(lambda: {
-                "runs": 0, "total_nodes": 0, "total_time": 0,
-                "total_length": 0, "successes": 0
-            })
-            for run in history_data:
-                alg_name = run['name']
-                stats = stats_by_alg[alg_name]
-                stats["runs"] += 1
-                stats["total_nodes"] += run['nodes']
-                try:
-                    time_val = float(run['time'].replace('ms', ''))
-                    stats["total_time"] += time_val
-                except (ValueError, AttributeError): pass
-                stats["total_length"] += run['length']
-                if run['length'] > 0: stats["successes"] += 1
+        # Sử dụng defaultdict để dễ dàng nhóm dữ liệu
+        stats_by_alg = defaultdict(lambda: {
+            "runs": 0, "total_nodes": 0, "total_time": 0,
+            "total_length": 0, "successes": 0
+        })
+
+        for run in self.history:
+            alg_name = run['name']
+            stats = stats_by_alg[alg_name]
+
+            stats["runs"] += 1
+            stats["total_nodes"] += run['nodes']
+            # Chuyển đổi thời gian từ chuỗi '123ms' thành số
+            try:
+                time_val = float(run['time'].replace('ms', ''))
+                stats["total_time"] += time_val
+            except (ValueError, AttributeError):
+                pass # Bỏ qua nếu định dạng thời gian không hợp lệ
             
-            for alg_name, data in stats_by_alg.items():
-                runs = data["runs"]
-                data["avg_nodes"] = data["total_nodes"] / runs
-                data["avg_time"] = data["total_time"] / runs
-                successful_runs = data['successes'] if data['successes'] > 0 else 1
-                data["avg_length"] = data["total_length"] / successful_runs
-                data["success_rate"] = data["successes"] / runs
-            return dict(stats_by_alg)
+            stats["total_length"] += run['length']
+            if run['length'] > 0:
+                stats["successes"] += 1
 
-        def _find_group_champions(successful_stats):
-            if not successful_stats: return None
-
-            alg_to_group_map = {
-                alg['name']: group['name']
-                for group in self.renderer.algorithm_groups
-                for alg in group['algorithms']
-            }
-
-            grouped_algs = defaultdict(list)
-            for alg_name, stats in successful_stats.items():
-                group_name = alg_to_group_map.get(alg_name)
-                if group_name:
-                    stats['name'] = alg_name # Gắn tên thuật toán vào dict để dùng sau
-                    grouped_algs[group_name].append(stats)
-
-            group_champions = {}
-            for group_name, alg_list in grouped_algs.items():
-                # Tiêu chí chọn "nhà vô địch": avg_time thấp nhất, nếu bằng nhau thì avg_nodes thấp hơn
-                best_alg = min(alg_list, key=lambda x: (x['avg_time'], x['avg_nodes']))
-                group_champions[group_name] = best_alg
-            
-            return group_champions
-        # Tính toán cho cả 3 tab
-        all_runs_stats = _calculate_stats_from_history(self.history)
-        successful_history = [run for run in self.history if run['length'] == 8]
-        successful_runs_stats = _calculate_stats_from_history(successful_history)
-        group_bests_stats = _find_group_champions(successful_runs_stats)
-
+        # Tính toán các giá trị trung bình
+        for alg_name, data in stats_by_alg.items():
+            runs = data["runs"]
+            data["avg_nodes"] = data["total_nodes"] / runs
+            data["avg_time"] = data["total_time"] / runs
+            data["avg_length"] = data["total_length"] / runs
+            data["success_rate"] = data["successes"] / runs
+        
         self.calculated_stats = {
-            "all_runs": all_runs_stats,
-            "successful_runs": successful_runs_stats,
-            "group_bests": group_bests_stats
+            "by_alg": dict(stats_by_alg) # Chuyển lại thành dict thường
         }
     
     def draw_frame(self):
@@ -549,7 +518,6 @@ class RooksGame:
         # Vẽ bảng thống kê nếu được kích hoạt
         if self.show_stats_panel:
             self.renderer.draw_stats_panel()
-            
         pygame.display.flip()
 
     def run(self):

@@ -1,4 +1,4 @@
-import time
+import random
 from engine.performance import PerformanceTracker
 N = 8  
 
@@ -46,52 +46,68 @@ def is_valid_goal_state(state, n=8):
 
 
 def update_belief_move(belief, n):
-    move_belief = []
-    
+    """MOVE: mỗi state di chuyển 1 quân nếu chưa full"""
+    new_belief = []
+
     for state in belief:
-        for successor in successors(state):
-            # Chỉ lấy move (cùng độ dài)
-            if len(successor) == len(state):
-                if successor not in move_belief:
-                    move_belief.append(successor)
-                break  # Chỉ lấy 1 move successor
-    
-    return move_belief
+        if len(state) == n:
+            new_belief.append(state)
+            continue
+
+        moved = False
+        # thử di chuyển quân đầu tiên có thể
+        for r in range(len(state)):
+            for col in range(n):
+                if col != state[r] and col not in state:
+                    new_state = state.copy()
+                    new_state[r] = col
+                    new_belief.append(new_state)
+                    moved = True
+                    break
+            if moved:
+                break
+
+        if not moved:
+            new_belief.append(state)
+
+    return new_belief
 
 
 def update_belief_place(belief, n):
-    place_belief = []
-    
+    """PLACE: mỗi state thêm 1 quân mới nếu chưa full"""
+    new_belief = []
     for state in belief:
-        for successor in successors(state):
-            # Chỉ lấy place (độ dài tăng)
-            if len(successor) > len(state):
-                if successor not in place_belief:
-                    place_belief.append(successor)
-                break  # Chỉ lấy 1 place successor
-    
-    return place_belief
+        if len(state) < n:
+            # Tìm tất cả các cột còn trống
+            available_cols = [col for col in range(n) if col not in state]
+            if available_cols:
+                # Chọn một cột ngẫu nhiên từ danh sách các cột trống
+                random_col = random.choice(available_cols)
+                new_belief.append(state + [random_col])
+            else:
+                # Trường hợp hiếm gặp: không còn cột nào nhưng len(state) < n
+                new_belief.append(state)
+        else:
+            # state đã đủ 8 quân thì giữ nguyên
+            new_belief.append(state)
+            
+    return new_belief
 
 
 def is_goal_belief(belief, goal, n):
-    """
-    - Tất cả trạng thái trong tập belief phải thuộc tập goal belief
-    - Nếu có goal cụ thể và tìm thấy state khớp → trả về state đó
-    - Nếu không có goal cụ thể hoặc không tìm thấy → trả về state đầu tiên
-
-    """
+    """Strong goal: tất cả states trong belief đều hợp lệ và full"""
     if not belief:
         return False, None
-    
+
     for state in belief:
         if not is_valid_goal_state(state, n):
             return False, None
-    
+
     if goal is not None:
         for state in belief:
             if state == goal:
-                return True, state  # Tìm thấy solution khớp goal
-    # Trả về state đầu tiên trong belief
+                return True, state
+
     return True, belief[0]
 
 
