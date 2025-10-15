@@ -156,7 +156,7 @@ class Renderer:
 
     def get_algorithm_button_rect(self, group_index, alg_index):
         start_x = 40
-        start_y = BOARD_OFFSET_Y + len(self.algorithm_groups) * (self.GROUP_BUTTON_HEIGHT + self.BUTTON_SPACING) + 30
+        start_y = BOARD_OFFSET_Y + len(self.algorithm_groups) * (self.GROUP_BUTTON_HEIGHT + self.BUTTON_SPACING) + 50
         y = start_y + alg_index * (self.ALG_BUTTON_HEIGHT + self.BUTTON_SPACING)
         return pygame.Rect(start_x, y, self.ALG_BUTTON_WIDTH, self.ALG_BUTTON_HEIGHT)
     
@@ -205,8 +205,8 @@ class Renderer:
             self.screen.blit(text, text_rect)
 
     def get_control_button_rect(self, i):
-        button_width = 110
-        button_height = 38
+        button_width = 120
+        button_height = 40
         start_x = 405
         start_y = 720
         spacing = 10

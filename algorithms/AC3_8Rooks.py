@@ -22,9 +22,10 @@ def AC3(solution=None, mode="all"):
     # Hàm loại bỏ giá trị không hợp lệ (inconsistent) của xi so với xj
     def remove_inconsistent_values(xi, xj):
         removed = False
-        for val in domains[xi][:]:
-            if val in domains[xj] and len(domains[xj]) == 1:
-                domains[xi].remove(val)
+        for x in domains[xi][:]:
+            # nếu không tồn tại giá trị y trong domain[xj] sao cho xi=x và xj=y hợp lệ
+            if not any(x != y for y in domains[xj]):  # điều kiện ràng buộc xi ≠ xj
+                domains[xi].remove(x)
                 removed = True
         return removed
 
