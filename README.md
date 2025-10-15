@@ -30,126 +30,155 @@ Một quân Xe có thể tấn công theo:
 
 ### 2.1. Nhóm thuật toán tìm kiếm không có thông tin (Uninformed Search)
 
+Uninformed Search (tìm kiếm không có thông tin) là nhóm các thuật toán không sử dụng bất kỳ kiến thức bổ sung nào ngoài mô tả bài toán. Thuật toán chỉ có thể sinh ra các trạng thái kế tiếp và kiểm tra xem trạng thái hiện tại có phải là trạng thái đích hay không. Sự khác biệt giữa các chiến lược trong nhóm này nằm ở thứ tự mở rộng các nút.
+
 #### 1. Tìm kiếm theo chiều rộng (BFS)
 
-* **Mô tả**: Tìm kiếm theo chiều rộng ([Breadth-First Search](https://vi.wikipedia.org/wiki/T%C3%ACm_ki%E1%BA%BFm_theo_chi%E1%BB%81u_r%E1%BB%99ng)) duyệt qua các node theo từng mức, đảm bảo tìm thấy đường đi ngắn nhất về số bước.
+* **Lý thuyết**: BFS là một thuật toán tìm kiếm theo chiều rộng, nghĩa là nó mở rộng các nút theo từng tầng. Bắt đầu từ nút gốc, BFS lần lượt mở rộng tất cả các nút ở cùng một độ sâu, sau đó mới chuyển sang các nút ở mức sâu hơn. Thuật toán sử dụng hàng đợi **FIFO (First-In-First-Out)** để quản lý danh sách các nút cần mở rộng. Nút mới sinh ra sẽ được thêm vào cuối hàng, trong khi nút ở đầu hàng sẽ được lấy ra để mở rộng trước.
+
 * **Các bước thực hiện trong code**:
-    1.  Khởi tạo một hàng đợi (`Queue`) với trạng thái ban đầu là bàn cờ trống `[[]]`.
-    2.  Lặp cho đến khi `Queue` rỗng:
-        * Lấy trạng thái đầu tiên ra khỏi `Queue` (cơ chế FIFO - `pop(0)`).
-        * Kiểm tra nếu trạng thái này là mục tiêu thì trả về kết quả.
-        * Nếu không, sinh ra tất cả các trạng thái con hợp lệ (bằng cách đặt thêm một quân xe vào cột chưa có) và thêm chúng vào cuối `Queue`.
+    1.  Khởi tạo một hàng đợi (`Queue`) với trạng thái ban đầu là một danh sách rỗng `[[]]`, đại diện cho bàn cờ chưa có quân xe nào.
+    2.  Bắt đầu vòng lặp cho đến khi `Queue` rỗng:
+        * Lấy trạng thái đầu tiên ra khỏi `Queue` bằng phương thức `pop(0)`.
+        * Kiểm tra nếu trạng thái này đủ 8 quân xe và trùng với lời giải thì trả về kết quả.
+        * Nếu chưa phải lời giải, sinh ra các trạng thái kế tiếp bằng cách thử đặt một quân xe vào từng cột chưa được sử dụng. Mỗi trạng thái mới hợp lệ sẽ được thêm vào cuối `Queue`.
+
 * **Kết quả sau áp dụng thuật toán**:
     ![](assets/8Rooks_Gif/BFS.gif)
 
 #### 2. Tìm kiếm theo chiều sâu (DFS)
 
-* **Mô tả**: Tìm kiếm theo chiều sâu ([Depth-First Search](https://vi.wikipedia.org/wiki/T%C3%ACm_ki%E1%BA%BFm_theo_chi%E1%BB%81u_s%C3%A2u)) ưu tiên đi sâu vào một nhánh của cây tìm kiếm trước khi quay lui.
+* **Lý thuyết**: DFS là một thuật toán tìm kiếm theo chiều sâu, nghĩa là nó ưu tiên đi sâu vào các nhánh của cây tìm kiếm trước khi quay lại mở rộng các nhánh khác. Bắt đầu từ nút gốc, DFS chọn một trong các nút con để mở rộng, tiếp tục đi sâu cho đến khi gặp nút đích hoặc không còn nút con nào chưa thăm, lúc đó thuật toán quay ngược trở lại (backtrack) để khám phá các nhánh còn lại. DFS sử dụng ngăn xếp **(Stack)** theo nguyên tắc **LIFO (Last-In-First-Out)** để quản lý các nút cần mở rộng.
+
 * **Các bước thực hiện trong code**:
     1.  Khởi tạo một ngăn xếp (`Stack`) với trạng thái ban đầu là bàn cờ trống `[[]]`.
-    2.  Lặp cho đến khi `Stack` rỗng:
-        * Lấy trạng thái cuối cùng ra khỏi `Stack` (cơ chế LIFO - `pop()`).
-        * Kiểm tra nếu trạng thái này là mục tiêu thì trả về kết quả.
-        * Nếu không, sinh các trạng thái con hợp lệ và thêm chúng vào `Stack`. (Các trạng thái con được sinh theo thứ tự cột giảm dần để đảm bảo nhánh có cột nhỏ hơn được khám phá trước).
+    2.  Bắt đầu vòng lặp cho đến khi `Stack` rỗng:
+        * Lấy trạng thái trên cùng ra khỏi `Stack` bằng phương thức `pop()`.
+        * Kiểm tra nếu trạng thái này là lời giải thì trả về kết quả.
+        * Nếu không, sinh các trạng thái con hợp lệ bằng cách đặt thêm một quân xe. Các trạng thái con này được thêm vào `Stack` (theo thứ tự cột giảm dần để đảm bảo nhánh có cột nhỏ hơn được khám phá trước).
+
 * **Kết quả sau áp dụng thuật toán**:
-    *(Chèn ảnh GIF của bạn ở đây)*
+    ![](assets/8Rooks_Gif/DFS.gif)
 
 #### 3. Tìm kiếm chi phí đồng đều (UCS)
 
-* **Mô tả**: Thuật toán tìm kiếm chi phí đồng đều ([Uniform Cost Search](https://vi.wikipedia.org/wiki/T%C3%ACm_ki%E1%BA%BFm_chi_ph%C3%AD_%C4%91%E1%BB%81u)) mở rộng node có chi phí đường đi (path cost) thấp nhất từ điểm bắt đầu. Nó sử dụng hàng đợi ưu tiên (`heapq`) và đảm bảo tìm thấy lời giải có tổng chi phí thấp nhất.
+* **Lý thuyết**: Uniform-Cost Search (UCS) là thuật toán tìm kiếm theo chi phí đồng đều, được xem là phiên bản tổng quát hóa của BFS. Khác với BFS mở rộng nút theo độ sâu, UCS mở rộng nút theo chi phí đường đi nhỏ nhất từ gốc đến nút đó (cost). Thuật toán sử dụng hàng đợi ưu tiên (priority queue), trong đó mỗi phần tử được sắp xếp theo tổng chi phí thực tế **g(n)** từ trạng thái ban đầu đến trạng thái hiện tại. Do đó, UCS luôn mở rộng nút có g(n) nhỏ nhất trước.
+
 * **Các bước thực hiện trong code**:
-    1.  Khởi tạo một hàng đợi ưu tiên (`Queue`) chứa `(cost, state)`, với trạng thái ban đầu là `(0, ())`.
-    2.  Lặp cho đến khi `Queue` rỗng:
+    1.  Khởi tạo một hàng đợi ưu tiên (`heapq`) chứa một tuple `(cost, state)`, với trạng thái ban đầu là `(0, ())`.
+    2.  Bắt đầu vòng lặp cho đến khi hàng đợi ưu tiên rỗng:
         * Lấy ra trạng thái có `cost` thấp nhất.
-        * Nếu là trạng thái mục tiêu thì dừng.
-        * Nếu không, sinh các trạng thái con, tính chi phí mới (`new_cost = cost + RookCost(...)`) và đẩy `(new_cost, new_state)` vào hàng đợi ưu tiên.
+        * Nếu là trạng thái mục tiêu thì dừng và trả về kết quả.
+        * Nếu không, sinh các trạng thái con. Với mỗi trạng thái con, tính chi phí mới (`new_cost`) bằng chi phí hiện tại cộng với chi phí bước đi (`RookCost`). `RookCost` được tính dựa trên khoảng cách từ cột được đặt đến cột mục tiêu trong lời giải. Sau đó, đẩy `(new_cost, new_state)` vào hàng đợi ưu tiên.
+
 * **Kết quả sau áp dụng thuật toán**:
-    *(Chèn ảnh GIF của bạn ở đây)*
+    ![](assets/8Rooks_Gif/UCS.gif)
 
 #### 4. Tìm kiếm sâu dần (IDS)
 
-* **Mô tả**: Thuật toán tìm kiếm sâu dần ([Iterative Deepening Search](https://en.wikipedia.org/wiki/Iterative_deepening_depth-first_search)) là sự kết hợp giữa BFS và DFS, thực hiện một loạt các tìm kiếm giới hạn độ sâu (DLS) với độ sâu tăng dần.
+* **Lý thuyết**: Iterative Deepening Search (IDS) là sự kết hợp giữa BFS và DFS. Thuật toán này thực hiện một loạt các tìm kiếm giới hạn độ sâu (DLS) với độ sâu `limit` tăng dần, bắt đầu từ 1. Nó kết hợp được ưu điểm về bộ nhớ của DFS và tính đầy đủ, tối ưu của BFS (khi chi phí bước đi là đồng nhất).
+
 * **Các bước thực hiện trong code**:
-    1.  Thực hiện một vòng lặp với `limit` (độ sâu giới hạn) tăng từ 1 đến 8.
+    1.  Thực hiện một vòng lặp với `limit` (độ sâu giới hạn) tăng dần từ 1 đến 8.
     2.  Trong mỗi vòng lặp, gọi thuật toán `DepthLimitedSearch` với `limit` hiện tại.
-    3.  Nếu `DepthLimitedSearch` trả về một lời giải, thuật toán IDS sẽ dừng lại và trả về lời giải đó.
+    3.  Nếu `DepthLimitedSearch` tìm thấy và trả về một lời giải, thuật toán IDS sẽ dừng lại ngay lập tức và trả về lời giải đó. Nếu chạy hết vòng lặp mà không tìm thấy, nghĩa là không có lời giải.
+
 * **Kết quả sau áp dụng thuật toán**:
-    *(Chèn ảnh GIF của bạn ở đây)*
+    ![](assets/8Rooks_Gif/IDS.gif)
 
 #### 5. Tìm kiếm theo chiều sâu giới hạn (DLS)
 
-* **Mô tả**: Thuật toán tìm kiếm theo chiều sâu giới hạn ([Depth-Limited Search](https://www.geeksforgeeks.org/artificial-intelligence/depth-limited-search-for-ai/)) là một biến thể của DFS, trong đó việc tìm kiếm sẽ dừng lại khi đạt đến một độ sâu giới hạn cho trước.
+* **Lý thuyết**: Depth-Limited Search (DLS) là một phiên bản của thuật toán DFS nhưng có thêm một giới hạn về độ sâu tối đa `limit`. DLS tránh được nhược điểm của DFS là đi quá sâu vào một nhánh vô hạn hoặc rất dài mà không tìm thấy đích, bằng cách ngừng mở rộng các nút khi đạt đến độ sâu `limit`.
+
 * **Các bước thực hiện trong code**:
-    1.  Sử dụng một hàm đệ quy `Recursive_DLS(state, solution, limit)`.
-    2.  Nếu trạng thái là mục tiêu, trả về trạng thái đó.
-    3.  Nếu `limit` bằng 0, dừng nhánh này và trả về `None`.
-    4.  Nếu không, với mỗi trạng thái con hợp lệ, gọi đệ quy `Recursive_DLS(child, solution, limit - 1)`.
+    1.  Thuật toán sử dụng một hàm đệ quy `Recursive_DLS(state, solution, limit)`.
+    2.  Nếu trạng thái hiện tại là lời giải, trả về trạng thái đó.
+    3.  Nếu `limit` bằng 0, hàm sẽ dừng việc đi sâu ở nhánh này và trả về `None`.
+    4.  Nếu chưa phải lời giải và `limit > 0`, hàm sẽ lặp qua các cột khả thi để tạo trạng thái con (child), sau đó gọi đệ quy `Recursive_DLS(child, solution, limit - 1)`.
+
 * **Kết quả sau khi áp dụng thuật toán**:
-    *(Chèn ảnh GIF của bạn ở đây)*
+    ![](assets/8Rooks_Gif/DLS.gif)
 
 ---
 
 ### 2.2. Nhóm thuật toán tìm kiếm có thông tin (Informed Search)
 
+Informed Search (tìm kiếm có thông tin) là nhóm thuật toán sử dụng kiến thức bổ sung về bài toán để định hướng quá trình tìm kiếm. Thông tin này thường ở dạng một hàm ước lượng chi phí (heuristic) để đánh giá mức độ "hứa hẹn" của một nút.
+
 #### 1. Tìm kiếm tham lam (Greedy Search)
 
-* **Mô tả**: Thuật toán tìm kiếm tham lam ([Greedy Search](https://en.wikipedia.org/wiki/Greedy_algorithm)) luôn chọn bước đi có vẻ tốt nhất tại thời điểm hiện tại. Nó sử dụng một hàm ước lượng chi phí (heuristic) để đánh giá khoảng cách từ trạng thái hiện tại đến mục tiêu.
+* **Lý thuyết**: Greedy Best-First Search luôn chọn bước đi có vẻ tốt nhất tại thời điểm hiện tại. Nó sử dụng một hàm ước lượng chi phí **(heuristic)** để đánh giá khoảng cách từ trạng thái hiện tại đến mục tiêu. Thuật toán này không quan tâm đến chi phí đường đi đã đi qua (`g(n)`), mà chỉ xét giá trị ước lượng khoảng cách đến đích (`h(n)`).
+
 * **Các bước thực hiện trong code**:
-    1.  Sử dụng hàng đợi ưu tiên (`heapq`) để lưu `(heuristic, state)`.
-    2.  Hàm heuristic `H_Manhattan` được sử dụng để tính tổng khoảng cách Manhattan từ vị trí các quân xe hiện tại đến vị trí mục tiêu.
-    3.  Tại mỗi bước, thuật toán lấy ra trạng thái có giá trị `heuristic` thấp nhất và sinh ra các trạng thái con từ đó.
+    1.  Sử dụng hàng đợi ưu tiên (`heapq`) để lưu trữ các tuple `(heuristic, state)`.
+    2.  Hàm heuristic `H_Manhattan` được sử dụng để tính tổng khoảng cách Manhattan từ vị trí các quân xe hiện tại đến vị trí trong lời giải cuối cùng.
+    3.  Tại mỗi bước, thuật toán lấy ra trạng thái có giá trị `heuristic` thấp nhất từ hàng đợi ưu tiên và sinh ra các trạng thái con từ đó. Các trạng thái con này sau đó được tính heuristic và thêm vào hàng đợi.
+
 * **Kết quả sau khi áp dụng thuật toán**:
-    *(Chèn ảnh GIF của bạn ở đây)*
+    ![](assets/8Rooks_Gif/Greedy.gif)
 
 #### 2. Tìm kiếm A* (A\* Search)
 
-* **Mô tả**: Thuật toán [A\* Search](https://vi.wikipedia.org/wiki/Gi%E1%BA%A3i_thu%E1%BA%ADt_t%C3%ACm_ki%E1%BA%BFm_A*) kết hợp ưu điểm của UCS và Greedy Search, đánh giá các node dựa trên hàm `f(n) = g(n) + h(n)`.
+* **Lý thuyết**: A\* Search kết hợp ưu điểm của UCS và Greedy Search, đánh giá các node dựa trên hàm `f(n) = g(n) + h(n)`, trong đó:
+    * `g(n)` là chi phí thực tế để đi từ trạng thái bắt đầu đến trạng thái hiện tại `n`.
+    * `h(n)` là chi phí ước tính (heuristic) để đi từ `n` đến trạng thái đích.
+    A\* luôn mở rộng nút có giá trị `f(n)` thấp nhất, giúp cân bằng giữa chi phí đã đi và chi phí ước tính còn lại.
+
 * **Các bước thực hiện trong code**:
-    1.  Sử dụng hàng đợi ưu tiên (`heapq`) để lưu `(f, g, state)`.
-    2.  `g(n)` là chi phí đường đi thực tế, tính bằng `RookCost`.
-    3.  `h(n)` là chi phí ước lượng, tính bằng `H_Manhattan`.
-    4.  Tại mỗi bước, thuật toán lấy ra trạng thái có giá trị `f` thấp nhất và sinh ra các trạng thái con từ đó.
+    1.  Sử dụng hàng đợi ưu tiên (`heapq`) để lưu các tuple `(f, g, state)`.
+    2.  `g(n)` là chi phí đường đi thực tế, được tính bằng hàm `RookCost` (tương tự UCS).
+    3.  `h(n)` là chi phí ước lượng, được tính bằng hàm `H_Manhattan` (tương tự Greedy Search).
+    4.  Tại mỗi bước, thuật toán lấy ra trạng thái có giá trị `f = g + h` thấp nhất. Sau đó, nó sinh ra các trạng thái con, tính toán `new_g`, `new_h`, và đẩy `(new_g + new_h, new_g, new_state)` vào hàng đợi ưu tiên.
+
 * **Kết quả sau khi áp dụng thuật toán**:
-    *(Chèn ảnh GIF của bạn ở đây)*
+    ![](assets/8Rooks_Gif/Astar.gif)
 
 ---
 
 ### 2.3. Nhóm thuật toán tìm kiếm cục bộ (Local Search)
+Tìm kiếm cục bộ (Local Search) là nhóm thuật toán hoạt động trên một trạng thái đơn lẻ và dần dần cải thiện nó. Các thuật toán này không cần lưu trữ cây tìm kiếm mà chỉ quan tâm đến trạng thái hiện tại và các trạng thái "láng giềng" của nó.
 
 #### 1. Leo đồi (Hill Climbing)
 
-* **Mô tả**: Thuật toán [Hill Climbing](https://en.wikipedia.org/wiki/Hill_climbing) tại mỗi bước sẽ di chuyển đến trạng thái "láng giềng" tốt hơn trạng thái hiện tại và dừng lại khi không có láng giềng nào tốt hơn.
+* **Lý thuyết**: Thuật toán Hill Climbing tại mỗi bước sẽ di chuyển đến trạng thái "láng giềng" tốt hơn trạng thái hiện tại và dừng lại khi không có láng giềng nào tốt hơn. Đây là một thuật toán tham lam cục bộ vì nó chỉ tìm kiếm sự cải thiện ngay lập tức mà không xem xét đường đi dài hạn.
+
 * **Các bước thực hiện trong code**:
     1.  Bắt đầu với một trạng thái rỗng.
     2.  Lặp qua từng hàng, sinh ra tất cả các trạng thái con khả thi (bằng cách đặt một quân xe vào hàng đó).
     3.  Chọn trạng thái con có giá trị heuristic (`H_match` - số quân xe đặt đúng vị trí) cao nhất.
     4.  Nếu giá trị heuristic của trạng thái tốt nhất không cao hơn trạng thái hiện tại, thuật toán sẽ dừng lại (đạt đỉnh cục bộ).
+
 * **Kết quả sau khi áp dụng thuật toán**:
-    *(Chèn ảnh GIF của bạn ở đây)*
+    ![](assets/8Rooks_Gif/Hill_Climbing.gif)
 
 #### 2. Luyện kim mô phỏng (Simulated Annealing)
 
-* **Mô tả**: Thuật toán [Simulated Annealing](https://en.wikipedia.org/wiki/Simulated_annealing) là một cải tiến của Hill Climbing. Thỉnh thoảng, thuật toán sẽ chấp nhận cả những nước đi "tệ hơn" với một xác suất nhất định, giúp nó thoát khỏi các đỉnh cục bộ.
+* **Lý thuyết**: Thuật toán Simulated Annealing là một cải tiến của Hill Climbing. Thỉnh thoảng, thuật toán sẽ chấp nhận cả những nước đi "tệ hơn" với một xác suất nhất định, giúp nó thoát khỏi các đỉnh cục bộ. Xác suất này phụ thuộc vào "nhiệt độ" (T), và nhiệt độ sẽ giảm dần theo thời gian, làm cho xác suất chấp nhận nước đi tệ giảm theo.
+
 * **Các bước thực hiện trong code**:
     1.  Tương tự Hill Climbing, nhưng nếu trạng thái tốt nhất không cải thiện so với hiện tại, thuật toán sẽ tính toán một xác suất `p = exp(delta / T)`.
     2.  Nó sẽ chấp nhận một nước đi tệ hơn nếu một số ngẫu nhiên nhỏ hơn `p`.
     3.  Nhiệt độ `T` sẽ giảm dần sau mỗi bước (`T *= alpha`), làm cho xác suất chấp nhận nước đi tệ giảm theo thời gian.
+
 * **Kết quả sau khi áp dụng thuật toán**:
-    *(Chèn ảnh GIF của bạn ở đây)*
+    ![](assets/8Rooks_Gif/Simulated_Annealing.gif)
 
 #### 3. Tìm kiếm Beam (Beam Search)
 
-* **Mô tả**: Thuật toán [Beam Search](https://en.wikipedia.org/wiki/Beam_search) là một biến thể của BFS nhưng chỉ giữ lại một số lượng `k` (beam width) các trạng thái tốt nhất ở mỗi mức để khám phá tiếp.
+* **Lý thuyết**: Thuật toán Beam Search là một biến thể của BFS nhưng chỉ giữ lại một số lượng `k` (beam width) các trạng thái tốt nhất ở mỗi mức để khám phá tiếp. Điều này giúp cân bằng giữa hiệu quả và độ bao phủ, giảm rủi ro đi sai hướng so với tìm kiếm tham lam đơn thuần.
+
 * **Các bước thực hiện trong code**:
     1.  Bắt đầu với một `beam` chứa trạng thái ban đầu.
     2.  Ở mỗi hàng, sinh ra tất cả các trạng thái con từ tất cả các trạng thái trong `beam` hiện tại.
     3.  Từ danh sách tất cả các trạng thái con vừa sinh, chọn ra `k` trạng thái tốt nhất (dựa trên `H_match`) để tạo thành `beam` cho vòng lặp tiếp theo.
+
 * **Kết quả sau khi áp dụng thuật toán**:
-    *(Chèn ảnh GIF của bạn ở đây)*
+    ![](assets/8Rooks_Gif/Beam.gif)
 
 #### 4. Giải thuật di truyền (Genetic Algorithm)
 
-* **Mô tả**: [Genetic Algorithm](https://aivietnam.edu.vn/blog/giai-thuat-di-truyen) mô phỏng quá trình tiến hóa tự nhiên để tìm kiếm lời giải.
+* **Lý thuyết**: Giải thuật di truyền mô phỏng quá trình tiến hóa tự nhiên để tìm kiếm lời giải. Nó làm việc với một "quần thể" các lời giải tiềm năng, áp dụng các toán tử "lai ghép" và "đột biến" qua nhiều "thế hệ" để dần dần hội tụ về lời giải tốt nhất.
+
 * **Các bước thực hiện trong code**:
     1.  **Khởi tạo**: Tạo một quần thể ban đầu gồm các hoán vị ngẫu nhiên.
     2.  **Đánh giá**: Tính `fitness` (độ tốt) cho mỗi cá thể bằng hàm `H_match`.
@@ -157,78 +186,93 @@ Một quân Xe có thể tấn công theo:
     4.  **Lai ghép**: Tạo ra các cá thể con bằng phương pháp `Order Crossover (OX)`.
     5.  **Đột biến**: Áp dụng đột biến (hoán đổi 2 vị trí) cho các cá thể con với một xác suất nhỏ.
     6.  Lặp lại quá trình qua nhiều thế hệ, giữ lại cá thể tốt nhất ở mỗi thế hệ (elitism).
+
 * **Kết quả sau khi áp dụng thuật toán**:
-    *(Chèn ảnh GIF của bạn ở đây)*
+    ![](assets/8Rooks_Gif/Genetic.gif)
 
 ---
 
 ### 2.4. Nhóm thuật toán trong môi trường phức tạp
+Nhóm thuật toán này được thiết kế để giải quyết các bài toán trong những môi trường mà agent không có đầy đủ thông tin hoặc hành động của nó không mang lại kết quả chắc chắn.
 
 #### 1. Tìm kiếm And-Or (And-Or Search)
 
-* **Mô tả**: Thuật toán [And-Or Search](https://en.wikipedia.org/wiki/And%E2%80%93or_tree) được sử dụng trong các môi trường không xác định (nondeterministic), nơi một hành động có thể dẫn đến nhiều kết quả.
+* **Lý thuyết**: Thuật toán And-Or Search được sử dụng trong các môi trường không xác định (nondeterministic), nơi một hành động có thể dẫn đến nhiều kết quả. Thuật toán tìm kiếm một kế hoạch (plan) thay vì một chuỗi hành động duy nhất. Một nút **OR** thành công nếu *ít nhất một* hành động dẫn đến thành công, trong khi một nút **AND** thành công chỉ khi *tất cả* các kết quả của một hành động đều có thể được xử lý để dẫn đến mục tiêu.
+
 * **Các bước thực hiện trong code**:
     1.  Sử dụng tìm kiếm đệ quy. Một node **OR** (đại diện cho lựa chọn hành động của agent) thành công nếu *ít nhất một* hành động dẫn đến thành công.
     2.  Một node **AND** (đại diện cho các kết quả có thể xảy ra của một hành động) thành công chỉ khi *tất cả* các kết quả đều có thể được xử lý để dẫn đến mục tiêu.
     3.  Sử dụng memoization để lưu kết quả các bài toán con và phát hiện chu trình để tránh lặp vô hạn.
+
 * **Kết quả khi áp dụng thuật toán**:
-    *(Chèn ảnh GIF của bạn ở đây)*
+    ![](assets/8Rooks_Gif/Nondeter.gif)
 
 #### 2. Tìm kiếm trong môi trường không quan sát được (Unobservable)
 
-* **Mô tả**: Agent không biết trạng thái hiện tại của nó mà duy trì một "tập niềm tin" (belief state) - là tập hợp tất cả các trạng thái có thể có.
+* **Lý thuyết**: Agent không biết trạng thái hiện tại của nó mà duy trì một "tập niềm tin" (belief state) - là tập hợp tất cả các trạng thái có thể có. Việc tìm kiếm diễn ra trên không gian của các tập niềm tin này. Một hành động được áp dụng cho toàn bộ tập niềm tin, tạo ra một tập niềm tin mới. Lời giải được tìm thấy khi agent đạt đến một tập niềm tin mà trong đó tất cả các trạng thái đều là trạng thái đích.
+
 * **Các bước thực hiện trong code**:
     1.  Bắt đầu với một `start_belief` bao gồm trạng thái rỗng và các trạng thái có 1 quân cờ.
     2.  Sử dụng DFS để tìm kiếm trên không gian của các `belief state`.
     3.  Các hành động `update_belief_place` (đã được ngẫu nhiên hóa) và `update_belief_move` được áp dụng cho toàn bộ `belief` để tạo ra `belief` mới.
     4.  Điều kiện mục tiêu (`is_goal_belief`) là khi **tất cả** các `state` trong `belief` hiện tại đều là một lời giải 8-quân hợp lệ.
+
 * **Kết quả khi áp dụng thuật toán**:
-    *(Chèn ảnh GIF của bạn ở đây)*
+    ![](assets/8Rooks_Gif/Unobser.gif)
 
 #### 3. Tìm kiếm trong môi trường quan sát được một phần (Partially Observable)
 
-* **Mô tả**: Đây là trường hợp tổng quát hơn, nơi agent có một số thông tin nhưng không đủ để xác định chính xác trạng thái hiện tại.
+* **Lý thuyết**: Đây là trường hợp tổng quát hơn, nơi agent có một số thông tin nhưng không đủ để xác định chính xác trạng thái hiện tại. Agent vẫn duy trì một tập niềm tin, nhưng tập niềm tin này có thể nhỏ hơn và cụ thể hơn nhờ vào các thông tin quan sát được.
+
 * **Các bước thực hiện trong code**:
     1.  `start_belief` được tạo ra dựa trên một phần của lời giải đã biết (`k` quân cờ đầu tiên) và thêm vào một vài biến thể ngẫu nhiên.
     2.  `goal_beliefs` cũng là một tập hợp các lời giải có chung `k` quân cờ đầu tiên.
     3.  Thuật toán sử dụng DFS để tìm kiếm một `belief` mà trong đó, **tất cả** các `state` đều là thành viên của `goal_beliefs`.
+
 * **Kết quả khi áp dụng thuật toán**:
-    *(Chèn ảnh GIF của bạn ở đây)*
+    ![](assets/8Rooks_Gif/Partialobser.gif)
 
 ---
 
 ### 2.5. Nhóm thuật toán Thỏa mãn ràng buộc (Constraint Satisfaction Problem)
+CSP (Bài toán thỏa mãn ràng buộc) định nghĩa một bài toán thông qua các biến, miền giá trị của chúng, và các ràng buộc mà các biến phải tuân theo. Mục tiêu là tìm một bộ giá trị gán cho các biến sao cho tất cả các ràng buộc đều được thỏa mãn.
 
 #### 1. Quay lui (Backtracking)
 
-* **Mô tả**: [Backtracking](https://en.wikipedia.org/wiki/Backtracking) là thuật toán cơ bản cho CSP. Nó gán giá trị cho các biến một cách tuần tự và quay lui khi vi phạm ràng buộc.
+* **Lý thuyết**: Backtracking là thuật toán cơ bản cho CSP. Nó gán giá trị cho các biến một cách tuần tự và quay lui khi vi phạm ràng buộc. Kỹ thuật này thử từng khả năng và nếu một lựa chọn dẫn đến ngõ cụt, nó sẽ quay lại bước trước đó để thử một lựa chọn khác.
+
 * **Các bước thực hiện trong code**:
     1.  Sử dụng hàm đệ quy `Backtrack(state)`.
     2.  Tại mỗi hàng, thử đặt quân xe vào các cột khả thi (những cột chưa được sử dụng).
     3.  Nếu một cột được chọn, gọi đệ quy cho hàng tiếp theo.
     4.  Nếu lời gọi đệ quy không tìm được lời giải, "quay lui" bằng cách xóa quân xe vừa đặt (`state.pop()`) và thử cột khác.
+
 * **Kết quả khi áp dụng thuật toán**:
-    *(Chèn ảnh GIF của bạn ở đây)*
+    ![](assets/8Rooks_Gif/Backtrack.gif)
 
 #### 2. Kiểm tra phía trước (Forward Checking)
 
-* **Mô tả**: Đây là một cải tiến của Backtracking. Mỗi khi gán một giá trị, nó sẽ "kiểm tra phía trước" và tạm thời loại bỏ các giá trị không tương thích khỏi miền của các biến chưa được gán.
+* **Lý thuyết**: Đây là một cải tiến của Backtracking. Mỗi khi gán một giá trị, nó sẽ "kiểm tra phía trước" và tạm thời loại bỏ các giá trị không tương thích khỏi miền của các biến chưa được gán. Điều này giúp phát hiện xung đột sớm hơn và cắt tỉa các nhánh tìm kiếm không cần thiết.
+
 * **Các bước thực hiện trong code**:
     1.  Sử dụng hàm đệ quy `FC_Backtrack(state, domains)`.
     2.  Khi đặt một quân xe ở `(hàng, cột)`, thuật toán sẽ loại bỏ `cột` đó khỏi `domains` của tất cả các `hàng` tương lai.
     3.  Nếu bất kỳ `domain` nào của hàng tương lai trở nên rỗng, nhánh tìm kiếm này thất bại.
     4.  Sau khi quay lui, các giá trị đã loại bỏ sẽ được khôi phục lại vào `domains`.
+
 * **Kết quả khi áp dụng thuật toán**:
-    *(Chèn ảnh GIF của bạn ở đây)*
+    ![](assets/8Rooks_Gif/Forward.gif)
 
 #### 3. Thuật toán AC-3 (Arc Consistency)
 
-* **Mô tả**: Thuật toán [AC-3](https://en.wikipedia.org/wiki/AC-3_algorithm) được sử dụng để tiền xử lý bài toán CSP, loại bỏ các giá trị không nhất quán khỏi miền giá trị của các biến trước khi bắt đầu tìm kiếm.
+* **Lý thuyết**: Thuật toán AC-3 là một thuật toán tiền xử lý được sử dụng để giảm kích thước miền giá trị của các biến trong bài toán CSP trước khi tiến hành tìm kiếm giải pháp. Một cung `(Xi, Xj)` được gọi là nhất quán nếu với mọi giá trị trong miền của `Xi`, có ít nhất một giá trị trong miền của `Xj` thỏa mãn ràng buộc giữa chúng.
+
 * **Các bước thực hiện trong code**:
     1.  **Tiền xử lý AC-3**: Xây dựng một hàng đợi chứa tất cả các "cung" `(hàng_i, hàng_j)`. Lặp và loại bỏ các giá trị không nhất quán khỏi miền của `hàng_i` dựa trên miền của `hàng_j` cho đến khi không còn gì để loại bỏ.
     2.  **Tìm kiếm**: Sau khi các miền giá trị đã được thu hẹp, gọi thuật toán `backtrack` tiêu chuẩn trên các miền đã được tối ưu hóa này.
+
 * **Kết quả khi áp dụng thuật toán**:
-    *(Chèn ảnh GIF của bạn ở đây)*
+    ![](assets/8Rooks_Gif/AC3.gif)
 
 ## 3. Môi trường phát triển
 
@@ -245,7 +289,7 @@ Một quân Xe có thể tấn công theo:
 ## 4. Hướng dẫn sử dụng chương trình
 
 1.  **Chạy chương trình**:
-    Thực thi file `main.py` (hoặc file chính chứa vòng lặp game của bạn) để khởi chạy ứng dụng.
+    Thực thi file `main.py` để khởi chạy ứng dụng.
     ```bash
     python main.py
     ```
