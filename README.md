@@ -99,6 +99,30 @@ Uninformed Search (tìm kiếm không có thông tin) là nhóm các thuật to�
 * **Kết quả sau khi áp dụng thuật toán**:
     ![](assets/8Rooks_Gif/DLS.gif)
 
+<br>
+
+### Đánh giá và Nhận xét Nhóm Uninformed Search
+
+Để đưa ra so sánh khách quan về hiệu suất, các thuật toán trong nhóm Uninformed Search đã được chạy hai lần với cùng một `solution` đích. Kết quả được tổng hợp trong bảng và biểu đồ dưới đây.
+
+#### **Bảng Thống Kê Tổng Quan (Overall Stats)**
+
+
+
+![Ảnh thống kê](assets/Static_pic/Uni_static.png)
+![Ảnh thống kê](assets/Static_pic/Uni_static_2.png)
+
+* **Average Nodes (Số nút trung bình):** Biểu đồ cho thấy **UCS** là thuật toán hiệu quả nhất, chỉ cần duyệt trung bình **268 node**. Ngược lại, **IDS** phải duyệt qua số lượng nút lớn nhất, lên tới **157,747 node**, do phải lặp lại quá trình tìm kiếm ở nhiều độ sâu khác nhau.
+* **Average Time (Thời gian trung bình):** **UCS** một lần nữa chứng tỏ sự vượt trội khi chỉ mất trung bình **69ms**. Trong khi đó, **BFS** là thuật toán tốn nhiều thời gian nhất (**33,931ms**), phản ánh độ phức tạp bộ nhớ và thời gian lớn của nó khi không gian trạng thái mở rộng.
+
+#### **Nhận xét chung**
+
+Dựa trên các số liệu trên, ta có thể rút ra một vài kết luận về nhóm Uninformed Search trong bài toán 8 quân xe:
+
+* **Hiệu quả nhất**: **UCS** tỏ ra là thuật toán tối ưu nhất trong nhóm này, vượt trội cả về số lượng nút cần duyệt lẫn thời gian thực thi. Điều này là do hàm `cost` đã cung cấp một "thông tin" hữu ích giúp thuật toán ưu tiên các nhánh có khả năng dẫn đến lời giải tốt hơn.
+* **Kém hiệu quả nhất**: **BFS** và **IDS** là hai thuật toán kém hiệu quả nhất. BFS tiêu tốn rất nhiều thời gian, trong khi IDS phải đánh đổi bằng việc duyệt lại một số lượng nút khổng lồ qua mỗi vòng lặp sâu dần.
+* **DFS và DLS**: Cả hai thuật toán này có hiệu suất tương đương nhau về số nút duyệt, vì DLS với `limit=8` về cơ bản hoạt động giống như DFS trong không gian trạng thái của bài toán này.
+
 ---
 
 ### 2.2. Nhóm thuật toán tìm kiếm có thông tin (Informed Search)
