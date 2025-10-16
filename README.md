@@ -30,11 +30,11 @@ Một quân Xe có thể tấn công theo:
 
 ### 2.1. Nhóm thuật toán tìm kiếm không có thông tin (Uninformed Search)
 
-Uninformed Search (tìm kiếm không có thông tin) là nhóm các thuật toán không sử dụng bất kỳ kiến thức bổ sung nào ngoài mô tả bài toán. Thuật toán chỉ có thể sinh ra các trạng thái kế tiếp và kiểm tra xem trạng thái hiện tại có phải là trạng thái đích hay không. Sự khác biệt giữa các chiến lược trong nhóm này nằm ở thứ tự mở rộng các nút.
+Uninformed Search (tìm kiếm không có thông tin) là nhóm các thuật toán không sử dụng bất kỳ kiến thức bổ sung nào ngoài mô tả bài toán. Thuật toán chỉ có thể sinh ra các trạng thái kế tiếp và kiểm tra xem trạng thái hiện tại có phải là trạng thái đích hay không. Sự khác biệt giữa các chiến lược trong nhóm này nằm ở thứ tự mở rộng các node.
 
 #### 1. Tìm kiếm theo chiều rộng (BFS)
 
-* **Lý thuyết**: BFS là một thuật toán tìm kiếm theo chiều rộng, nghĩa là nó mở rộng các nút theo từng tầng. Bắt đầu từ nút gốc, BFS lần lượt mở rộng tất cả các nút ở cùng một độ sâu, sau đó mới chuyển sang các nút ở mức sâu hơn. Thuật toán sử dụng hàng đợi **FIFO (First-In-First-Out)** để quản lý danh sách các nút cần mở rộng. Nút mới sinh ra sẽ được thêm vào cuối hàng, trong khi nút ở đầu hàng sẽ được lấy ra để mở rộng trước.
+* **Lý thuyết**: BFS là một thuật toán tìm kiếm theo chiều rộng, nghĩa là nó mở rộng các node theo từng tầng. Bắt đầu từ node gốc, BFS lần lượt mở rộng tất cả các node ở cùng một độ sâu, sau đó mới chuyển sang các node ở mức sâu hơn. Thuật toán sử dụng hàng đợi **FIFO (First-In-First-Out)** để quản lý danh sách các node cần mở rộng. Nút mới sinh ra sẽ được thêm vào cuối hàng, trong khi node ở đầu hàng sẽ được lấy ra để mở rộng trước.
 
 * **Các bước thực hiện trong code**:
     1.  Khởi tạo một hàng đợi (`Queue`) với trạng thái ban đầu là một danh sách rỗng `[[]]`, đại diện cho bàn cờ chưa có quân xe nào.
@@ -48,7 +48,7 @@ Uninformed Search (tìm kiếm không có thông tin) là nhóm các thuật to�
 
 #### 2. Tìm kiếm theo chiều sâu (DFS)
 
-* **Lý thuyết**: DFS là một thuật toán tìm kiếm theo chiều sâu, nghĩa là nó ưu tiên đi sâu vào các nhánh của cây tìm kiếm trước khi quay lại mở rộng các nhánh khác. Bắt đầu từ nút gốc, DFS chọn một trong các nút con để mở rộng, tiếp tục đi sâu cho đến khi gặp nút đích hoặc không còn nút con nào chưa thăm, lúc đó thuật toán quay ngược trở lại (backtrack) để khám phá các nhánh còn lại. DFS sử dụng ngăn xếp **(Stack)** theo nguyên tắc **LIFO (Last-In-First-Out)** để quản lý các nút cần mở rộng.
+* **Lý thuyết**: DFS là một thuật toán tìm kiếm theo chiều sâu, nghĩa là nó ưu tiên đi sâu vào các nhánh của cây tìm kiếm trước khi quay lại mở rộng các nhánh khác. Bắt đầu từ node gốc, DFS chọn một trong các node con để mở rộng, tiếp tục đi sâu cho đến khi gặp node đích hoặc không còn node con nào chưa thăm, lúc đó thuật toán quay ngược trở lại (backtrack) để khám phá các nhánh còn lại. DFS sử dụng ngăn xếp **(Stack)** theo nguyên tắc **LIFO (Last-In-First-Out)** để quản lý các node cần mở rộng.
 
 * **Các bước thực hiện trong code**:
     1.  Khởi tạo một ngăn xếp (`Stack`) với trạng thái ban đầu là bàn cờ trống `[[]]`.
@@ -62,7 +62,7 @@ Uninformed Search (tìm kiếm không có thông tin) là nhóm các thuật to�
 
 #### 3. Tìm kiếm chi phí đồng đều (UCS)
 
-* **Lý thuyết**: Uniform-Cost Search (UCS) là thuật toán tìm kiếm theo chi phí đồng đều, được xem là phiên bản tổng quát hóa của BFS. Khác với BFS mở rộng nút theo độ sâu, UCS mở rộng nút theo chi phí đường đi nhỏ nhất từ gốc đến nút đó (cost). Thuật toán sử dụng hàng đợi ưu tiên (priority queue), trong đó mỗi phần tử được sắp xếp theo tổng chi phí thực tế **g(n)** từ trạng thái ban đầu đến trạng thái hiện tại. Do đó, UCS luôn mở rộng nút có g(n) nhỏ nhất trước.
+* **Lý thuyết**: Uniform-Cost Search (UCS) là thuật toán tìm kiếm theo chi phí đồng đều, được xem là phiên bản tổng quát hóa của BFS. Khác với BFS mở rộng node theo độ sâu, UCS mở rộng node theo chi phí đường đi nhỏ nhất từ gốc đến node đó (cost). Thuật toán sử dụng hàng đợi ưu tiên (priority queue), trong đó mỗi phần tử được sắp xếp theo tổng chi phí thực tế **g(n)** từ trạng thái ban đầu đến trạng thái hiện tại. Do đó, UCS luôn mở rộng node có g(n) nhỏ nhất trước.
 
 * **Các bước thực hiện trong code**:
     1.  Khởi tạo một hàng đợi ưu tiên (`heapq`) chứa một tuple `(cost, state)`, với trạng thái ban đầu là `(0, ())`.
@@ -88,7 +88,7 @@ Uninformed Search (tìm kiếm không có thông tin) là nhóm các thuật to�
 
 #### 5. Tìm kiếm theo chiều sâu giới hạn (DLS)
 
-* **Lý thuyết**: Depth-Limited Search (DLS) là một phiên bản của thuật toán DFS nhưng có thêm một giới hạn về độ sâu tối đa `limit`. DLS tránh được nhược điểm của DFS là đi quá sâu vào một nhánh vô hạn hoặc rất dài mà không tìm thấy đích, bằng cách ngừng mở rộng các nút khi đạt đến độ sâu `limit`.
+* **Lý thuyết**: Depth-Limited Search (DLS) là một phiên bản của thuật toán DFS nhưng có thêm một giới hạn về độ sâu tối đa `limit`. DLS tránh được nhược điểm của DFS là đi quá sâu vào một nhánh vô hạn hoặc rất dài mà không tìm thấy đích, bằng cách ngừng mở rộng các node khi đạt đến độ sâu `limit`.
 
 * **Các bước thực hiện trong code**:
     1.  Thuật toán sử dụng một hàm đệ quy `Recursive_DLS(state, solution, limit)`.
@@ -103,31 +103,31 @@ Uninformed Search (tìm kiếm không có thông tin) là nhóm các thuật to�
 
 ### Đánh giá và Nhận xét Nhóm Uninformed Search
 
-Để đưa ra so sánh khách quan về hiệu suất, các thuật toán trong nhóm Uninformed Search đã được chạy hai lần với cùng một `solution` đích. Kết quả được tổng hợp trong bảng và biểu đồ dưới đây.
+Bảng dưới đây thể hiện hiệu suất trung bình của nhóm thuật toán Uninformed Search.
 
-#### **Bảng Thống Kê Tổng Quan (Overall Stats)**
-
-
+#### **Bảng Thống Kê Tổng Quan**
 
 ![Ảnh thống kê](assets/Static_pic/Uni_static.png)
+Bảng tóm tắt hiệu suất trung bình của các thuật toán trong nhóm.
 ![Ảnh thống kê](assets/Static_pic/Uni_static_2.png)
+Biểu đồ so sánh trực quan số node duyệt và thời gian thực thi của các thuật toán.
 
-* **Average Nodes (Số nút trung bình):** Biểu đồ cho thấy **UCS** là thuật toán hiệu quả nhất, chỉ cần duyệt trung bình **268 node**. Ngược lại, **IDS** phải duyệt qua số lượng nút lớn nhất, lên tới **157,747 node**, do phải lặp lại quá trình tìm kiếm ở nhiều độ sâu khác nhau.
+* **Average Nodes (Số node trung bình):** Biểu đồ cho thấy **UCS** là thuật toán hiệu quả nhất, chỉ cần duyệt trung bình **268 node**. Ngược lại, **IDS** phải duyệt qua số lượng node lớn nhất, lên tới **157,747 node**, do phải lặp lại quá trình tìm kiếm ở nhiều độ sâu khác nhau.
 * **Average Time (Thời gian trung bình):** **UCS** một lần nữa chứng tỏ sự vượt trội khi chỉ mất trung bình **69ms**. Trong khi đó, **BFS** là thuật toán tốn nhiều thời gian nhất (**33,931ms**), phản ánh độ phức tạp bộ nhớ và thời gian lớn của nó khi không gian trạng thái mở rộng.
 
 #### **Nhận xét chung**
 
 Dựa trên các số liệu trên, ta có thể rút ra một vài kết luận về nhóm Uninformed Search trong bài toán 8 quân xe:
 
-* **Hiệu quả nhất**: **UCS** tỏ ra là thuật toán tối ưu nhất trong nhóm này, vượt trội cả về số lượng nút cần duyệt lẫn thời gian thực thi. Điều này là do hàm `cost` đã cung cấp một "thông tin" hữu ích giúp thuật toán ưu tiên các nhánh có khả năng dẫn đến lời giải tốt hơn.
-* **Kém hiệu quả nhất**: **BFS** và **IDS** là hai thuật toán kém hiệu quả nhất. BFS tiêu tốn rất nhiều thời gian, trong khi IDS phải đánh đổi bằng việc duyệt lại một số lượng nút khổng lồ qua mỗi vòng lặp sâu dần.
-* **DFS và DLS**: Cả hai thuật toán này có hiệu suất tương đương nhau về số nút duyệt, vì DLS với `limit=8` về cơ bản hoạt động giống như DFS trong không gian trạng thái của bài toán này.
+* **Hiệu quả nhất**: **UCS** tỏ ra là thuật toán tối ưu nhất trong nhóm này, vượt trội cả về số lượng node cần duyệt lẫn thời gian thực thi. Điều này là do hàm `cost` đã cung cấp một "thông tin" hữu ích giúp thuật toán ưu tiên các nhánh có khả năng dẫn đến lời giải tốt hơn.
+* **Kém hiệu quả nhất**: **BFS** và **IDS** là hai thuật toán kém hiệu quả nhất. BFS tiêu tốn rất nhiều thời gian, trong khi IDS phải đánh đổi bằng việc duyệt lại một số lượng node khổng lồ qua mỗi vòng lặp sâu dần.
+* **DFS và DLS**: Cả hai thuật toán này có hiệu suất tương đương nhau về số node duyệt, vì DLS với `limit=8` về cơ bản hoạt động giống như DFS trong không gian trạng thái của bài toán này.
 
 ---
 
 ### 2.2. Nhóm thuật toán tìm kiếm có thông tin (Informed Search)
 
-Informed Search (tìm kiếm có thông tin) là nhóm thuật toán sử dụng kiến thức bổ sung về bài toán để định hướng quá trình tìm kiếm. Thông tin này thường ở dạng một hàm ước lượng chi phí (heuristic) để đánh giá mức độ "hứa hẹn" của một nút.
+Informed Search (tìm kiếm có thông tin) là nhóm thuật toán sử dụng kiến thức bổ sung về bài toán để định hướng quá trình tìm kiếm. Thông tin này thường ở dạng một hàm ước lượng chi phí (heuristic) để đánh giá mức độ "hứa hẹn" của một node.
 
 #### 1. Tìm kiếm tham lam (Greedy Search)
 
@@ -146,7 +146,7 @@ Informed Search (tìm kiếm có thông tin) là nhóm thuật toán sử dụng
 * **Lý thuyết**: A\* Search kết hợp ưu điểm của UCS và Greedy Search, đánh giá các node dựa trên hàm `f(n) = g(n) + h(n)`, trong đó:
     * `g(n)` là chi phí thực tế để đi từ trạng thái bắt đầu đến trạng thái hiện tại `n`.
     * `h(n)` là chi phí ước tính (heuristic) để đi từ `n` đến trạng thái đích.
-    A\* luôn mở rộng nút có giá trị `f(n)` thấp nhất, giúp cân bằng giữa chi phí đã đi và chi phí ước tính còn lại.
+    A\* luôn mở rộng node có giá trị `f(n)` thấp nhất, giúp cân bằng giữa chi phí đã đi và chi phí ước tính còn lại.
 
 * **Các bước thực hiện trong code**:
     1.  Sử dụng hàng đợi ưu tiên (`heapq`) để lưu các tuple `(f, g, state)`.
@@ -156,7 +156,29 @@ Informed Search (tìm kiếm có thông tin) là nhóm thuật toán sử dụng
 
 * **Kết quả sau khi áp dụng thuật toán**:
     ![](assets/8Rooks_Gif/Astar.gif)
+<br>
 
+### Đánh giá và Nhận xét Nhóm Informed Search
+
+Bảng dưới đây thể hiện hiệu suất trung bình của hai thuật toán Greedy và A*.
+#### **Bảng Thống Kê Tổng Quan**
+
+![Ảnh thống kê](assets/Static_pic/Inform_static.png)
+Bảng tóm tắt hiệu suất trung bình của các thuật toán trong nhóm.
+
+
+![Ảnh thống kê](assets/Static_pic/Ìnorm_static_2.png)
+Biểu đồ so sánh trực quan số node duyệt và thời gian thực thi của các thuật toán.
+
+
+* **Average Nodes (Số node trung bình):** **Greedy Search** cực kỳ hiệu quả về số node duyệt, chỉ cần trung bình **9 node**. Ngược lại, **A\*** phải duyệt nhiều hơn đáng kể (**57 node**). Điều này là do Greedy luôn chọn hướng đi có vẻ tốt nhất (heuristic thấp nhất) mà không quan tâm đến chi phí đã đi, trong khi A\* phải cân nhắc cả chi phí thực tế (`g(n)`) nên quá trình tìm kiếm sẽ toàn diện hơn.
+* **Average Time (Thời gian trung bình):** Tương tự, **Greedy** cũng nhanh hơn vượt trội, chỉ mất trung bình **4ms**. **A\*** mất nhiều thời gian hơn (**28ms**) vì phải thực hiện nhiều phép tính và quản lý một hàng đợi ưu tiên phức tạp hơn.
+
+#### **Nhận xét chung**
+
+* **Greedy Search** thể hiện đúng bản chất "tham lam" của mình: nhanh, hiệu quả và đi thẳng đến vấn đề. Trong bài toán 8 quân xe với không gian trạng thái tương đối đơn giản, heuristic `H_Manhattan` tỏ ra rất hiệu quả, giúp Greedy nhanh chóng tìm ra lời giải.
+* **A\* Search** dù chậm hơn và duyệt nhiều node hơn, nhưng nó đảm bảo tìm được lời giải tối ưu về mặt chi phí (nếu có). Trong trường hợp này, vì mỗi bước đi có chi phí như nhau, sự khác biệt về "tối ưu" không rõ rệt. Tuy nhiên, việc nó phải cân nhắc cả `g(n)` và `h(n)` khiến nó trở thành một thuật toán đáng tin cậy hơn trong các bài toán phức tạp hơn, nơi mà Greedy có thể dễ dàng đi vào ngõ cụt.
+* **Kết luận**: Cả hai thuật toán đều cho thấy sức mạnh của việc sử dụng thông tin bổ sung (heuristic). Trong khi Greedy là lựa chọn tốt cho tốc độ, A\* là lựa chọn an toàn và đảm bảo tính tối ưu hơn.
 ---
 
 ### 2.3. Nhóm thuật toán tìm kiếm cục bộ (Local Search)
@@ -213,6 +235,27 @@ Tìm kiếm cục bộ (Local Search) là nhóm thuật toán hoạt động tr�
 
 * **Kết quả sau khi áp dụng thuật toán**:
     ![](assets/8Rooks_Gif/Genetic.gif)
+<br>
+
+### Đánh giá và Nhận xét Nhóm Local Search
+
+Bảng dưới đây thể hiện hiệu suất trung bình của nhóm thuật toán Local Search.
+
+#### **Bảng Thống Kê Tổng Quan **
+![Ảnh thống kê](assets/Static_pic/Local_static.png)
+Bảng tóm tắt hiệu suất trung bình của các thuật toán trong nhóm.
+
+![Ảnh thống kê](assets/Static_pic/Local_static_2.png)
+Biểu đồ so sánh trực quan số node duyệt và thời gian thực thi của các thuật toán.
+
+* **Average Nodes (Số node trung bình):** **Hill Climbing** và **Simulated Annealing** là hai thuật toán hiệu quả nhất, chỉ duyệt trung bình **9 node**. **Beam Search** cần nhiều hơn một chút (**118 node**), trong khi **Genetic Algorithm** là thuật toán duyệt nhiều trạng thái nhất (**525 node**) do phải đánh giá cả một quần thể qua nhiều thế hệ.
+* **Average Time (Thời gian trung bình):** Về mặt thời gian, **Hill Climbing** là nhanh nhất (chỉ **4ms**), theo sát là **Simulated Annealing (5ms)**. **Genetic Algorithm** tốn nhiều thời gian nhất (**428ms**) do chi phí tính toán cho việc lựa chọn, lai ghép và đột biến quần thể.
+
+#### **Nhận xét chung**
+
+* **Hill Climbing và Simulated Annealing:** Cả hai thuật toán này đều cực kỳ nhanh và hiệu quả cho bài toán 8 quân xe. Hiệu suất gần như tương đương cho thấy không gian trạng thái của bài toán này không có nhiều "đỉnh cục bộ" phức tạp, do đó, cơ chế thoát khỏi đỉnh cục bộ của Simulated Annealing không tạo ra nhiều khác biệt so với Hill Climbing.
+* **Beam Search:** Mặc dù hiệu quả hơn các thuật toán Uninformed Search, nhưng Beam Search lại kém hiệu quả hơn so với Hill Climbing và Simulated Annealing. Việc duy trì một `beam` (tập hợp các trạng thái tốt nhất) làm tăng chi phí duyệt node mà không mang lại lợi ích rõ rệt trong bài toán này.
+* **Genetic Algorithm:** Đây là thuật toán kém hiệu quả nhất trong nhóm Local Search. Sức mạnh của nó nằm ở việc khám phá các không gian trạng thái rộng lớn và phức tạp. Tuy nhiên, đối với bài toán 8 quân xe có cấu trúc tương đối đơn giản, chi phí quản lý quần thể của Genetic Algorithm là quá lớn so với các phương pháp cải tiến cục bộ đơn giản hơn.
 
 ---
 
@@ -221,7 +264,7 @@ Nhóm thuật toán này được thiết kế để giải quyết các bài to
 
 #### 1. Tìm kiếm And-Or (And-Or Search)
 
-* **Lý thuyết**: Thuật toán And-Or Search được sử dụng trong các môi trường không xác định (nondeterministic), nơi một hành động có thể dẫn đến nhiều kết quả. Thuật toán tìm kiếm một kế hoạch (plan) thay vì một chuỗi hành động duy nhất. Một nút **OR** thành công nếu *ít nhất một* hành động dẫn đến thành công, trong khi một nút **AND** thành công chỉ khi *tất cả* các kết quả của một hành động đều có thể được xử lý để dẫn đến mục tiêu.
+* **Lý thuyết**: Thuật toán And-Or Search được sử dụng trong các môi trường không xác định (nondeterministic), nơi một hành động có thể dẫn đến nhiều kết quả. Thuật toán tìm kiếm một kế hoạch (plan) thay vì một chuỗi hành động duy nhất. Một node **OR** thành công nếu *ít nhất một* hành động dẫn đến thành công, trong khi một node **AND** thành công chỉ khi *tất cả* các kết quả của một hành động đều có thể được xử lý để dẫn đến mục tiêu.
 
 * **Các bước thực hiện trong code**:
     1.  Sử dụng tìm kiếm đệ quy. Một node **OR** (đại diện cho lựa chọn hành động của agent) thành công nếu *ít nhất một* hành động dẫn đến thành công.
@@ -255,7 +298,28 @@ Nhóm thuật toán này được thiết kế để giải quyết các bài to
 
 * **Kết quả khi áp dụng thuật toán**:
     ![](assets/8Rooks_Gif/Partialobser.gif)
+<br>
 
+### Đánh giá và Nhận xét Nhóm Complex Environment
+
+Nhóm thuật toán này được thiết kế để giải quyết các bài toán trong môi trường không xác định hoặc thông tin bị che khuất. 
+
+#### **Bảng Thống Kê Tổng Quan **
+![Ảnh thống kê](assets/Static_pic/CE_static.png)
+Bảng thống kê hiệu suất trung bình của các thuật toán trong nhóm.
+
+![Ảnh thống kê](assets/Static_pic/CE_static_2.png)
+Biểu đồ so sánh hiệu suất giữa các thuật toán khi tìm thấy lời giải.
+
+* **Average Nodes (Số node trung bình):** **Partial Observable** là thuật toán hiệu quả nhất, chỉ duyệt trung bình **42 node**. **Unobservable Search** cần nhiều hơn một chút (**81 node**). **Nondeterministic Search (And-Or Search)** là thuật toán kém hiệu quả nhất, phải duyệt một số lượng node khổng lồ (**109,601 node**) do phải xem xét tất cả các kết quả có thể xảy ra của mỗi hành động.
+
+* **Average Time (Thời gian trung bình):** Tương tự, **Partial Observable** nhanh nhất với chỉ **10ms**, trong khi **Nondeterministic Search** cực kỳ tốn thời gian, lên tới **35,036ms**.
+
+#### **Nhận xét chung**
+
+* **Partial Observable và Unobservable Search:** Cả hai thuật toán này đều hoạt động trên không gian "tập niềm tin" (belief state) và tỏ ra hiệu quả hơn nhiều so với And-Or search. **Partial Observable** nhanh hơn vì nó được cung cấp một phần thông tin về lời giải (`k` quân cờ đầu tiên), giúp thu hẹp không gian tìm kiếm một cách đáng kể.
+* **Nondeterministic Search (And-Or Search):** Thuật toán này có chi phí tính toán rất lớn. Lý do là vì tại mỗi bước, nó không chỉ sinh ra một trạng thái con mà phải tìm kiếm kế hoạch để xử lý *tất cả* các kết quả có thể xảy ra của một hành động. Điều này tạo ra một cây tìm kiếm cực kỳ phức tạp, dẫn đến số lượng node và thời gian tăng theo cấp số nhân.
+* **Kết luận:** Trong môi trường phức tạp, lượng thông tin mà agent có được đóng vai trò quyết định đến hiệu suất. Càng có nhiều thông tin (như trong Partial Observable), không gian tìm kiếm càng được thu hẹp và lời giải được tìm thấy càng nhanh. Các thuật toán phải đối mặt với sự không chắc chắn hoàn toàn (như And-Or Search) sẽ có chi phí tính toán cao nhất.
 ---
 
 ### 2.5. Nhóm thuật toán Thỏa mãn ràng buộc (Constraint Satisfaction Problem)
@@ -297,6 +361,57 @@ CSP (Bài toán thỏa mãn ràng buộc) định nghĩa một bài toán thông
 
 * **Kết quả khi áp dụng thuật toán**:
     ![](assets/8Rooks_Gif/AC3.gif)
+<br>
+
+### Đánh giá và Nhận xét Nhóm Constraint Satisfied Problem (CSP)
+
+Nhóm thuật toán CSP giải quyết bài toán bằng cách gán giá trị cho các biến sao cho thỏa mãn các ràng buộc. Hiệu suất của chúng được so sánh qua hai lần chạy với cùng một `solution` đích.
+
+#### **Bảng Thống Kê Tổng Quan **
+![Ảnh thống kê](assets/CSP_pic/CSP_static.png)
+Bảng tóm tắt hiệu suất trung bình của các thuật toán trong nhóm.
+
+![Ảnh thống kê](assets/CSP_pic/CSP_static_2.png)
+Biểu đồ so sánh trực quan hiệu suất của các thuật toán khi tìm thấy lời giải.
+
+* **Average Nodes (Số nút trung bình):** **Forward Checking** là thuật toán hiệu quả nhất, chỉ cần duyệt trung bình **33,908 node**. Ngược lại, **Backtracking** là thuật toán duyệt nhiều nút nhất (**73,239 node**). **Arc Consistency Algorithm 3** nằm ở giữa (**47,044 node**).
+* **Average Time (Thời gian trung bình):** Tương tự, **Forward Checking** là thuật toán nhanh nhất, chỉ mất **2,436ms**. **Backtracking** là thuật toán chậm nhất với **10,449ms**.
+
+#### **Nhận xét chung**
+
+* **Hiệu quả nhất**: **Forward Checking** chứng tỏ là phương pháp vượt trội nhất trong nhóm này. Bằng cách "nhìn trước" và loại bỏ các giá trị không hợp lệ khỏi miền của các biến tương lai, nó đã cắt tỉa cây tìm kiếm một cách hiệu quả, dẫn đến việc duyệt ít nút hơn và thời gian thực thi nhanh hơn đáng kể.
+* **Kém hiệu quả nhất**: **Backtracking** cơ bản là thuật toán kém hiệu quả nhất. Do chỉ kiểm tra ràng buộc với các biến đã được gán, nó lãng phí nhiều thời gian để đi vào các nhánh tìm kiếm mà chắc chắn sẽ thất bại.
+* **Arc Consistency (AC-3)**: Mặc dù việc tiền xử lý bằng AC-3 giúp giảm số lượng nút duyệt so với Backtracking thuần túy, nhưng nó vẫn không hiệu quả bằng Forward Checking. Điều này cho thấy trong bài toán 8 quân xe, việc cắt tỉa động (dynamic pruning) của Forward Checking tại mỗi bước gán biến mang lại hiệu quả cao hơn so với việc thực thi nhất quán cung toàn cục một lần ngay từ đầu.
+* **Kết luận**: Các kết quả này nhấn mạnh tầm quan trọng của việc truyền bá ràng buộc (constraint propagation) trong việc giải quyết CSP. Các kỹ thuật phát hiện xung đột sớm như Forward Checking có thể cải thiện đáng kể hiệu suất so với tìm kiếm quay lui đơn giản.
+
+<br>
+
+### Đánh giá tổng quan các nhóm thuật toán
+
+Phần này so sánh hiệu suất của thuật toán "vô địch" (champion) - tức là thuật toán hoạt động tốt nhất - từ mỗi nhóm để đưa ra cái nhìn tổng quan về phương pháp tiếp cận nào là hiệu quả nhất cho bài toán 8 quân xe.
+
+#### **So sánh hiệu suất các "nhà vô địch" của mỗi nhóm**
+
+Biểu đồ dưới đây thể hiện sự khác biệt về hiệu suất giữa các thuật toán tốt nhất từ mỗi nhóm, dựa trên số nút đã duyệt và thời gian thực thi trung bình.
+
+![Ảnh thống kê](assets/CSP_pic/Overstat.png)
+
+#### **Phân tích và Nhận xét**
+
+* **Nhóm hiệu quả nhất**: Có một sự tương đồng đáng kinh ngạc về hiệu suất giữa ba nhóm: **Local Search (Hill Climbing)**, **Informed Search (Greedy)**, và **Complex Environment (Partial Observable)**. Cả ba đều giải quyết bài toán với số nút duyệt và thời gian cực kỳ thấp (chỉ khoảng 4-16ms). Điều này cho thấy các phương pháp sử dụng heuristic hoặc có sẵn một phần thông tin đều vượt trội trong việc nhanh chóng tìm ra lời giải.
+* **Nhóm tầm trung**: **Uninformed Search (UCS)** đứng ở vị trí thứ hai. Mặc dù là thuật toán tốt nhất trong nhóm không có thông tin, nó vẫn cần duyệt số nút và thời gian cao hơn đáng kể so với các nhóm trên.
+* **Nhóm kém hiệu quả nhất**: **Constraint Satisfied Problem (Backtracking)** là nhóm có chi phí tính toán cao nhất. Mặc dù là một phương pháp có cấu trúc, việc tìm kiếm quay lui một cách hệ thống đã phải duyệt qua một không gian trạng thái rất lớn so với các phương pháp có định hướng khác.
+
+#### **Kết luận chung**
+
+Qua so sánh tổng thể, có thể thấy rõ ràng rằng lượng "thông tin" mà thuật toán sở hữu có ảnh hưởng trực tiếp đến hiệu suất của nó.
+
+1.  **Tốt nhất**: Các thuật toán **Local Search** và **Informed Search** là những lựa chọn hiệu quả nhất cho bài toán này. Các phương pháp đơn giản như Hill Climbing và Greedy Search, với sự dẫn dắt của heuristic, có thể tìm ra lời giải gần như ngay lập tức.
+2.  **Tốt**: Nhóm **Complex Environment** (cụ thể là Partial Observable) cũng rất hiệu quả vì nó được cung cấp thông tin ban đầu, giúp thu hẹp đáng kể không gian tìm kiếm.
+3.  **Trung bình**: Nhóm **Uninformed Search**, dù không có heuristic, vẫn có thể tìm ra lời giải một cách có hệ thống, nhưng với chi phí cao hơn.
+4.  **Kém nhất**: Nhóm **CSP** với phương pháp backtracking cơ bản tỏ ra chậm nhất do phải khám phá một cách mù quáng một cây tìm kiếm lớn.
+
+**Kết luận cuối cùng**: Đối với bài toán 8 quân xe, các phương pháp tìm kiếm cục bộ và tìm kiếm có thông tin dựa trên heuristic đơn giản là cách tiếp cận hiệu quả nhất cả về thời gian và tài nguyên tính toán.
 
 ## 3. Môi trường phát triển
 
