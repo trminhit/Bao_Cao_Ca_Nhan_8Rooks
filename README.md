@@ -1,9 +1,24 @@
-# BÁO CÁO BÀI TOÁN 8 QUÂN XE
+# Báo Cáo Đồ Án: Bài Toán 8 Quân Xe
+## Thông Tin Đồ Án
 
-**GVHD**: Phan Thị Huyền Trang  
+**Báo Cáo Cá Nhân- Môn: Trí Tuệ Nhân Tạo**
+
+**GVHD**: TS. Phan Thị Huyền Trang
 **SVTT**: Nguyễn Trường Minh - **MSSV**: 23110125
 
-# BÀI TOÁN 8 QUÂN XE
+## Mục Lục
+
+1.  Giới thiệu bài toán
+2.  Các thuật toán được áp dụng
+    * Nhóm Uninformed Search
+    * Nhóm Informed Search
+    * Nhóm Local Search
+    * Nhóm Complex Environment
+    * Nhóm Constraint Satisfied Problem
+3.  Môi trường phát triển
+4.  Hướng dẫn sử dụng chương trình
+5.  Cấu trúc dự án
+6.  Hướng Phát Triển Tương Lai
 
 ## 1. Giới thiệu bài toán
 
@@ -24,8 +39,7 @@ Một quân Xe có thể tấn công theo:
 
 ## 2. Các thuật toán được áp dụng
 
-⚠️ **Lưu ý**: Để tối ưu hóa và quản lý bộ nhớ, việc sinh trạng thái trong hầu hết các thuật toán đều được thực hiện theo từng hàng.
-
+**Ghi chú về thiết kế**: Để tối ưu hóa hiệu suất và việc sử dụng bộ nhớ, các thuật toán trong project này đa phần được triển khai với phương pháp sinh trạng thái theo từng hàng.
 ---
 
 ### 2.1. Nhóm thuật toán tìm kiếm không có thông tin (Uninformed Search)
@@ -457,7 +471,39 @@ Qua so sánh tổng thể, có thể thấy rõ ràng rằng lượng "thông ti
 ## 5. Cấu trúc dự án
 
 Dự án được tổ chức theo cấu trúc gần với mô hình MVC (Model-View-Controller) để dễ quản lý và mở rộng:
-
-* **Model**: Thư mục `algorithms/` chứa logic của tất cả các thuật toán tìm kiếm. Đây là "bộ não" của ứng dụng, xử lý việc tìm kiếm lời giải. Thư mục `engine/` chứa các lớp hỗ trợ như `PerformanceTracker`.
-* **View**: File `gui/renderer.py` chịu trách nhiệm vẽ toàn bộ các thành phần giao diện người dùng, từ bàn cờ, các nút bấm cho đến bảng thống kê.
-* **Controller**: File `gui/game_8Rooks.py` đóng vai trò là bộ điều khiển trung tâm, xử lý các sự kiện đầu vào của người dùng (click chuột, cuộn), gọi các thuật toán tương ứng từ Model, và ra lệnh cho View cập nhật lại giao diện.
+---
+```
+8-Rooks-Project/
+├── main.py # File chính để khởi chạy ứng dụng
+├── README.md # File tài liệu và báo cáo dự án
+├── algorithms/ # (Model) Thư mục chứa logic của tất cả các thuật toán
+│    ├── init.py # Khởi tạo package cho các thuật toán
+│    ├── BFS_8Rooks.py # Thuật toán Breadth-First Search
+│    ├── DFS_8Rooks.py # Thuật toán Depth-First Search
+│    ├── UCS_8Rooks.py # Thuật toán Uniform-Cost Search
+│    ├── DLS_8Rooks.py # Thuật toán Depth-Limited Search
+│    ├── IDS_8Rooks.py # Thuật toán Iterative Deepening Search
+│    ├── Greedy_8Rooks.py # Thuật toán Greedy Best-First Search
+│    ├── AS_8Rooks.py # Thuật toán A* Search
+│    ├── HillClimbing_8Rooks.py # Thuật toán Hill Climbing
+│    ├── SimulatedAnnealing_8Rooks.py # Thuật toán Simulated Annealing
+│    ├── Beam_8Rooks.py # Thuật toán Beam Search
+│    ├── Genetic_8Rooks.py # Giải thuật di truyền
+│    ├── AndOr_8Rooks.py # Thuật toán And-Or Search
+│    ├── Unobservable_8Rooks.py # Tìm kiếm trong môi trường không quan sát được
+│    ├── PartialObservable.py # Tìm kiếm trong môi trường quan sát một phần
+│    ├── Backtracking_8Rooks.py # Thuật toán Backtracking (CSP)
+│    ├── ForwardChecking_8Rooks.py # Thuật toán Forward Checking (CSP)
+│    └── AC3_8Rooks.py # Thuật toán Arc Consistency 3 (CSP)
+├── engine/ # Thư mục chứa các module lõi hỗ trợ
+│    ├── common_goal.py # Chứa các hàm kiểm tra trạng thái đích
+│    └── performance.py # Class để theo dõi hiệu suất thuật toán
+├── gui/ # Thư mục chứa các module giao diện người dùng
+│    ├── game_8Rooks.py # (Controller) Logic chính của game, xử lý sự kiện
+│    └── renderer.py # (View) Chịu trách nhiệm vẽ giao diện
+└── assets/ # Thư mục chứa các tài nguyên tĩnh
+    ├── Rook_img.png # Hình ảnh quân xe
+    ├── 8Rooks_Gif/ # Chứa các file GIF minh họa thuật toán
+    └── Static_pic/ # Chứa các hình ảnh tĩnh cho báo cáo
+```
+---
