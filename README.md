@@ -3,7 +3,7 @@
 
 **Báo Cáo Cá Nhân- Môn: Trí Tuệ Nhân Tạo**
 
-**GVHD**: TS. Phan Thị Huyền Trang
+**GVHD**: TS. Phan Thị Huyền Trang <br>
 **SVTT**: Nguyễn Trường Minh - **MSSV**: 23110125
 
 ## Mục Lục
