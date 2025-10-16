@@ -167,7 +167,7 @@ Bảng dưới đây thể hiện hiệu suất trung bình của hai thuật to
 Bảng tóm tắt hiệu suất trung bình của các thuật toán trong nhóm.
 
 
-![Ảnh thống kê](assets/Static_pic/Ìnorm_static_2.png)
+![Ảnh thống kê](assets/Static_pic/Inform_static_2.png)
 Biểu đồ so sánh trực quan số node duyệt và thời gian thực thi của các thuật toán.
 
 
@@ -305,10 +305,10 @@ Nhóm thuật toán này được thiết kế để giải quyết các bài to
 Nhóm thuật toán này được thiết kế để giải quyết các bài toán trong môi trường không xác định hoặc thông tin bị che khuất. 
 
 #### **Bảng Thống Kê Tổng Quan **
-![Ảnh thống kê](assets/Static_pic/CE_static.png)
+![Ảnh thống kê](assets/Static_pic/CE_Static.png)
 Bảng thống kê hiệu suất trung bình của các thuật toán trong nhóm.
 
-![Ảnh thống kê](assets/Static_pic/CE_static_2.png)
+![Ảnh thống kê](assets/Static_pic/CE_Static_2.png)
 Biểu đồ so sánh hiệu suất giữa các thuật toán khi tìm thấy lời giải.
 
 * **Average Nodes (Số node trung bình):** **Partial Observable** là thuật toán hiệu quả nhất, chỉ duyệt trung bình **42 node**. **Unobservable Search** cần nhiều hơn một chút (**81 node**). **Nondeterministic Search (And-Or Search)** là thuật toán kém hiệu quả nhất, phải duyệt một số lượng node khổng lồ (**109,601 node**) do phải xem xét tất cả các kết quả có thể xảy ra của mỗi hành động.
@@ -368,10 +368,10 @@ CSP (Bài toán thỏa mãn ràng buộc) định nghĩa một bài toán thông
 Nhóm thuật toán CSP giải quyết bài toán bằng cách gán giá trị cho các biến sao cho thỏa mãn các ràng buộc. Hiệu suất của chúng được so sánh qua hai lần chạy với cùng một `solution` đích.
 
 #### **Bảng Thống Kê Tổng Quan **
-![Ảnh thống kê](assets/CSP_pic/CSP_static.png)
+![Ảnh thống kê](assets/Static_pic/CSP_static.png)
 Bảng tóm tắt hiệu suất trung bình của các thuật toán trong nhóm.
 
-![Ảnh thống kê](assets/CSP_pic/CSP_static_2.png)
+![Ảnh thống kê](assets/Static_pic/CSP_static_2.png)
 Biểu đồ so sánh trực quan hiệu suất của các thuật toán khi tìm thấy lời giải.
 
 * **Average Nodes (Số nút trung bình):** **Forward Checking** là thuật toán hiệu quả nhất, chỉ cần duyệt trung bình **33,908 node**. Ngược lại, **Backtracking** là thuật toán duyệt nhiều nút nhất (**73,239 node**). **Arc Consistency Algorithm 3** nằm ở giữa (**47,044 node**).
@@ -394,7 +394,7 @@ Phần này so sánh hiệu suất của thuật toán "vô địch" (champion) 
 
 Biểu đồ dưới đây thể hiện sự khác biệt về hiệu suất giữa các thuật toán tốt nhất từ mỗi nhóm, dựa trên số nút đã duyệt và thời gian thực thi trung bình.
 
-![Ảnh thống kê](assets/CSP_pic/Overstat.png)
+![Ảnh thống kê](assets/Static_pic/Overstat.png)
 
 #### **Phân tích và Nhận xét**
 
