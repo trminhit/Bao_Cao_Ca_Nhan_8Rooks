@@ -1,4 +1,5 @@
 import heapq
+from engine.performance import PerformanceTracker
 
 def RookCost(state, col, solution):
     """Tính chi phí đặt quân vào cột col ở state hiện tại."""
@@ -9,7 +10,7 @@ def RookCost(state, col, solution):
     return cost
 
 def UniformCostSearch(solution, mode="all"):
-    """UCS cho bài 8 Rooks với visited set và hỗ trợ mode='all'."""
+    """UCS cho bài 8 Rooks"""
     N = len(solution)
     start = ()
     Queue = [(0, start)]  # (cost, state)
@@ -19,9 +20,12 @@ def UniformCostSearch(solution, mode="all"):
     visited.add(start)
 
     all_states = [] if mode == "all" else None
+    tracker = PerformanceTracker("UCS")
+    tracker.start()
 
     while Queue:
         cost, col_select = heapq.heappop(Queue)
+        tracker.add_node()
 
         if mode == "all":
             all_states.append(list(col_select))
@@ -29,9 +33,9 @@ def UniformCostSearch(solution, mode="all"):
         # Nếu đã đầy N quân
         if len(col_select) == N:
             if list(col_select) == solution:
-                if mode == "all":
-                    return all_states
-                return list(col_select)
+                tracker.goal_found()
+                tracker.stop()
+                return (all_states, tracker.get_stats()) if mode=="all" else (list(col_select), tracker.get_stats())
             else:
                 continue
 
@@ -44,4 +48,5 @@ def UniformCostSearch(solution, mode="all"):
                     heapq.heappush(Queue, (new_cost, new_state))
                     visited.add(new_state)
 
-    return all_states if mode == "all" else []
+    tracker.stop()
+    return (all_states, tracker.get_stats()) if mode=="all" else ([], tracker.get_stats())

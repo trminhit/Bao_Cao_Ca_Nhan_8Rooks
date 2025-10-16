@@ -1,5 +1,6 @@
 import random
 import itertools
+from engine.performance import PerformanceTracker  
 
 
 def make_start_belief(solution, k=5, extra_states=2, seed=None):
@@ -49,78 +50,99 @@ def make_goal_beliefs(solution, num_goals=5, k=5, seed=None):
             break
     return goals
 
-def successors(state, n, prefix_len):
-    """
-    Sinh 1 move hợp lệ và 1 place hợp lệ
-    - Move: chỉ di chuyển các quân sau prefix
-    - Place: thêm 1 quân nếu chưa đủ n
-    """
-    successors = []
-    row = len(state)
 
-    # Move
-    if row > prefix_len:
-        for r in range(prefix_len, row):
-            for col in range(n):
-                if col != state[r] and col not in state:
-                    new_state = state.copy()
-                    new_state[r] = col
-                    successors.append(new_state)
+def belief_move(belief, n, prefix_len):
+    """Sinh belief mới bằng hành động MOVE:
+       - Mỗi state move 1 quân (từ hàng >= prefix_len)
+       - State full thì giữ nguyên"""
+    new_belief = []
+
+    for state in belief:
+        if len(state) == n:
+            # full rồi thì giữ nguyên
+            new_belief.append(state)
+            continue
+
+        moved = False
+        # chỉ move được nếu có hàng >= prefix_len
+        if len(state) > prefix_len:
+            for r in range(prefix_len, len(state)):
+                for col in range(n):
+                    if col != state[r] and col not in state:
+                        new_state = state.copy()
+                        new_state[r] = col
+                        new_belief.append(new_state)
+                        moved = True
+                        break
+                if moved:
                     break
-            if successors:
-                break
+        if not moved:
+            # nếu không move được (hoặc chưa đủ hàng để move)
+            new_belief.append(state)
+    return new_belief
 
-    # Place
-    if row < n:
-        for col in range(n):
-            if col not in state:
-                successors.append(state + [col])
-                break
 
-    return successors
+def belief_place(belief, n):
+    """Sinh belief mới bằng hành động PLACE:
+       - Mỗi state thêm 1 quân mới nếu chưa full"""
+    new_belief = []
+    for state in belief:
+        if len(state) < n:
+            for col in range(n):
+                if col not in state:
+                    new_belief.append(state + [col])
+                    break
+        else:
+            # full thì giữ nguyên
+            new_belief.append(state)
+    return new_belief
+
 
 def Find_Rooks_DFS_Belief(solution, mode="all", seed=None):
+    """DFS Belief với 2 hành động: MOVE -> PLACE, goal check toàn bộ belief"""
     n = len(solution)
+    perf = PerformanceTracker("Partial Observable DFS")
+    perf.start()
 
     start_belief = make_start_belief(solution, k=5, extra_states=2, seed=seed)
     goal_beliefs = make_goal_beliefs(solution, num_goals=5, seed=seed)
 
     visited = set()
-    path = []   # lưu lại các belief đã đi qua
-    stack = [start_belief]  # stack khởi đầu với 1 belief (list các state)
+    path = []
+    stack = [start_belief]  # khởi đầu stack với belief đầu tiên
+
+    prefix_len = 4
 
     while stack:
         belief = stack.pop()
-        key = tuple(tuple(state) for state in belief)
+        key = tuple(tuple(s) for s in belief)
         if key in visited:
             continue
         visited.add(key)
         path.append(belief)
+        perf.add_node(len(belief))
 
-        # check goal
-        conds = [len(state) == n and state in goal_beliefs for state in belief]
-        if any(conds):
+        # kiểm tra toàn bộ belief 
+        if all(len(s) == n and s in goal_beliefs for s in belief):
+            perf.goal_found()
+            perf.stop()
             if mode == "all":
-                return path
-            elif mode == "goal":
-                # trả về state đầy đủ đầu tiên trùng goal_beliefs
-                for state in belief:
-                    if len(state) == n and state in goal_beliefs:
-                        return state
+                return (path, perf.get_stats())
+            else:
+                return (belief[0], perf.get_stats())  # tất cả states đều đúng, trả state đầu tiên
 
-        # mở rộng successors
-        new_belief = []
-        for state in belief:
-            for s in successors(state, n, prefix_len=5):
-                if s not in new_belief:
-                    new_belief.append(s)
+        # mở rộng belief theo 2 hành động
+        move_belief = belief_move(belief, n, prefix_len)
+        place_belief = belief_place(belief, n)
 
-        if new_belief:
-            stack.append(new_belief)
+        # push MOVE trước rồi PLACE sau (để PLACE được xử lý trước)
+        stack.append(move_belief)
+        stack.append(place_belief)
 
-    # nếu không tìm thấy
+    perf.stop()
+
     if mode == "all":
-        return path
-    elif mode == "goal":
-        # trả về state đầu tiên của last belief
-        return path[-1][0] if path else None
+        return (path, perf.get_stats())
+    else:
+        final_state = path[-1][0] if path and path[-1] else []
+        return (final_state, perf.get_stats())

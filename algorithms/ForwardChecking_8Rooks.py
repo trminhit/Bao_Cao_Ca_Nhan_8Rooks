@@ -1,4 +1,5 @@
 import random
+from engine.performance import PerformanceTracker
 
 def ForwardChecking(solution, mode="all"):
     """
@@ -13,13 +14,19 @@ def ForwardChecking(solution, mode="all"):
     # Khởi tạo domain cho từng hàng
     initial_domains = [list(range(n)) for _ in range(n)]
 
-    def FC_Backtrack(state, domains):
-        row = len(state)  # biến hiện tại là hàng row
-        if mode == "all":
-            all_states.append(state.copy())  # lưu state hiện tại
+    tracker = PerformanceTracker("ForwardChecking")
+    tracker.start()
 
-        if row == n:  # đã đặt đủ n quân
+    def FC_Backtrack(state, domains):
+        row = len(state)
+          # tăng node visited
+
+        if mode == "all":
+            all_states.append(state.copy())
+
+        if row == n:
             if mode == "goal" and state == solution:
+                tracker.goal_found()
                 return True
             elif mode == "goal":
                 return False
@@ -32,16 +39,16 @@ def ForwardChecking(solution, mode="all"):
 
         for col in candidates:
             # thử gán col cho row
+            tracker.add_node()
             state.append(col)
 
-            # Forward Checking: giảm domain của các hàng chưa gán
-            pruned = []  # lưu lại những giá trị bị loại để restore khi backtrack
+            pruned = []
             valid = True
-            for r in range(row+1, n):
+            for r in range(row + 1, n):
                 if col in domains[r]:
                     domains[r].remove(col)
                     pruned.append(r)
-                    if not domains[r]:  # nếu domain rỗng => prune nhánh
+                    if not domains[r]:
                         valid = False
                         break
 
@@ -50,15 +57,17 @@ def ForwardChecking(solution, mode="all"):
                 if result and mode == "goal":
                     return True
 
-            # Backtrack: restore domain
+            # restore domain
             for r in pruned:
                 domains[r].append(col)
-            state.pop()  # xóa giá trị vừa thử
+            state.pop()
 
         return False
 
     FC_Backtrack([], initial_domains)
+    tracker.stop()
+    tracker.print_stats()
     if mode == "all":
-        return all_states
+        return all_states, tracker.get_stats()
     else:
-        return solution
+        return solution, tracker.get_stats()

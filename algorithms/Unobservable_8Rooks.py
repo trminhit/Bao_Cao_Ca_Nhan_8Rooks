@@ -1,72 +1,227 @@
-def successors(state, n):
-    successors = []
-    row = len(state)
+import random
+from engine.performance import PerformanceTracker
+N = 8  
 
-    # Move: Chỉ lấy một successor đầu tiên nếu có
+def successors(state):
+    """Sinh các successor của một state (chỉ state, không cần action)."""
+    n = N
+    successors_list = []
+
+    # Move: di chuyển quân hiện tại
     if state:
-        for r in range(row):
+        for r in range(len(state)):
             for col in range(n):
                 if col != state[r] and col not in state:
                     new_state = state.copy()
                     new_state[r] = col
-                    successors.append(new_state)
+                    successors_list.append(new_state)
                     break
-            if successors:
+            if successors_list:
                 break
-
-    # Place: Chỉ lấy một successor đầu tiên nếu có
-    if row < n:
+            
+    # Place: thêm quân mới nếu chưa đủ n
+    if len(state) < n:
         for col in range(n):
             if col not in state:
-                successors.append(state + [col])
+                new_state = state + [col]
+                successors_list.append(new_state)
                 break
-    
-    return successors
-def Find_Rooks_DFS_Belief(solution, mode="all"):
-    """DFS với belief states cho bài toán 8 Rooks"""
-    start_belief = [[], [2]]  # Belief ban đầu
-    goal_beliefs = [
-        [0, 1, 2, 3, 4, 5, 6, 7],
-        solution,  # Goal truyền vào
-        [0, 3, 2, 1, 4, 5, 7, 6]
-    ]
-    n = 8  # Kích thước bàn cờ 8x8
 
+    return successors_list
+
+def make_start_belief(n=8):
+    start_belief = [[]]  # State rỗng
+    
+    # Thêm các state có 1 quân ở mỗi cột
+    for col in range(n):
+        start_belief.append([col])
+    
+    return start_belief
+
+
+def is_valid_goal_state(state, n=8):
+    if len(state) != n:
+        return False
+    return set(state) == set(range(n))
+
+
+def update_belief_move(belief, n):
+    """MOVE: mỗi state di chuyển 1 quân nếu chưa full"""
+    new_belief = []
+
+    for state in belief:
+        if len(state) == n:
+            new_belief.append(state)
+            continue
+
+        moved = False
+        # thử di chuyển quân đầu tiên có thể
+        for r in range(len(state)):
+            for col in range(n):
+                if col != state[r] and col not in state:
+                    new_state = state.copy()
+                    new_state[r] = col
+                    new_belief.append(new_state)
+                    moved = True
+                    break
+            if moved:
+                break
+
+        if not moved:
+            new_belief.append(state)
+
+    return new_belief
+
+
+def update_belief_place(belief, n):
+    """PLACE: mỗi state thêm 1 quân mới nếu chưa full"""
+    new_belief = []
+    for state in belief:
+        if len(state) < n:
+            # Tìm tất cả các cột còn trống
+            available_cols = [col for col in range(n) if col not in state]
+            if available_cols:
+                # Chọn một cột ngẫu nhiên từ danh sách các cột trống
+                random_col = random.choice(available_cols)
+                new_belief.append(state + [random_col])
+            else:
+                # Trường hợp hiếm gặp: không còn cột nào nhưng len(state) < n
+                new_belief.append(state)
+        else:
+            # state đã đủ 8 quân thì giữ nguyên
+            new_belief.append(state)
+            
+    return new_belief
+
+
+def is_goal_belief(belief, goal, n):
+    """Strong goal: tất cả states trong belief đều hợp lệ và full"""
+    if not belief:
+        return False, None
+
+    for state in belief:
+        if not is_valid_goal_state(state, n):
+            return False, None
+
+    if goal is not None:
+        for state in belief:
+            if state == goal:
+                return True, state
+
+    return True, belief[0]
+
+
+def dfs_belief_generator(start_belief, goal, n, tracker=None):
+    """
+    Yields:(belief, perf) - tuple của belief hiện tại và performance stats
+    """
     stack = [start_belief]
-    steps = [] if mode == "all" else None
+    visited_beliefs = set()
     
     while stack:
         belief = stack.pop()
         
-        if mode == "all":
-            steps.append(belief)
-
-        # Kiểm tra nếu toàn bộ state trong belief thuộc goal_beliefs
-        conds = [len(state) == n and state in goal_beliefs for state in belief]
-        if all(conds):
-            # Ưu tiên trạng thái khớp với solution
-            for state in belief:
-                if state == solution:
-                    if mode == "all":
-                        return steps
-                    return state[:]  
-            if mode == "all":
-                return steps
-            return belief[0][:] if belief else []
+        # Convert to hashable để check visited
+        key = tuple(tuple(state) for state in belief)
+        if key in visited_beliefs:
+            continue
+        visited_beliefs.add(key)
         
-        # Sinh belief mới từ move và place
-        move_belief = []
-        place_belief = []
-        for state in belief:
-            for ns in successors(state, n):
-                if len(ns) == len(state):  # Move
-                    move_belief.append(ns)
-                else:  # Place
-                    place_belief.append(ns)
+        # Track nodes
+        if tracker:
+            tracker.add_node(len(belief))  # mỗi belief có thể chứa nhiều state
+            perf = tracker.get_stats()
+        else:
+            perf = {"nodes_visited": 0, "elapsed_time": 0}
+        
+        # Kiểm tra goal
+        is_goal, goal_state = is_goal_belief(belief, goal, n)
+        perf["solution_found"] = is_goal
+        
+        # tập các states
+        yield belief, perf
+        
+        # DỪNG KHI TẤT CẢ STATES TRONG BELIEF ĐỀU LÀ GOAL
+        if is_goal:
+            return
+        
+        # Sinh 2 ACTIONS: Move và Place
+        move_belief = update_belief_move(belief, n)
+        place_belief = update_belief_place(belief, n)
+        
+        # PUSH: Move trước, Place sau (Place sẽ pop trước - LIFO)
         if move_belief:
             stack.append(move_belief)
         if place_belief:
-            stack.append(place_belief)    
-    
-    return steps if mode == "all" else []
+            stack.append(place_belief)
 
+
+def Find_Rooks_DFS_Belief(goal=None, mode="goal"):
+    """
+    Đặc điểm:
+    - Start belief động: [[], [0], [1], ..., [7]]
+    - Goal beliefs: TẤT CẢ permutations hợp lệ (dùng hàm kiểm tra)
+    - Strong goal: TẤT CẢ states trong belief phải là goal
+    - Dừng khi: Tìm được belief mà tất cả states đều là goals
+    - Output: State khớp goal (nếu có) hoặc state đầu tiên
+    """
+    n = N
+    tracker = PerformanceTracker("Unobservable DFS")
+    tracker.start()
+    
+    #  Khởi tạo Start Belief động
+    start_belief = make_start_belief(n)
+    
+    #  DFS với belief states
+    if mode == "goal":
+        final_state = None
+        final_perf = {}
+        
+        for belief, perf in dfs_belief_generator(start_belief, goal, n, tracker):
+            if perf.get("solution_found", False):
+                # Tìm thấy goal
+                is_goal, goal_state = is_goal_belief(belief, goal, n)
+                if is_goal:
+                    final_state = goal_state
+                    tracker.goal_found()
+                    final_perf = tracker.get_stats()
+                    final_perf["solution_found"] = True
+                    break
+        
+        tracker.stop()
+        final_perf = tracker.get_stats()
+        final_perf["solution_found"] = bool(final_state)
+        
+        return final_state or [], final_perf
+    
+    else:  # mode == "all"
+        all_beliefs = []
+        last_perf = {}
+        
+        for belief, perf in dfs_belief_generator(start_belief, goal, n, tracker):
+            all_beliefs.append(belief)
+            last_perf = perf
+        
+        tracker.stop()
+        last_perf = tracker.get_stats()
+        
+        return all_beliefs, last_perf
+
+
+def beliefs_to_states(beliefs):
+    """
+    Convert list of beliefs thành list of single states để dễ animate.
+    Lấy state đầu tiên từ mỗi belief.
+    """
+    states = []
+    for belief in beliefs:
+        if belief:
+            states.append(belief[0])  # Lấy state đầu tiên
+    return states
+
+
+def belief_to_all_states(belief):
+    """
+    Convert 1 belief thành list tất cả states trong belief.
+    """
+    return belief
